@@ -1,39 +1,34 @@
-// O'zingizning Bot Token va Chat ID'ingizni burchakli qavslarsiz kiriting
 const BOT_TOKEN = "8730808658:AAE2CxCZ6m2dQqqFxu7RuFgyMSyonE2NNCk";
 const CHAT_ID = "8431365235";
 
 document.getElementById('leadForm').addEventListener('submit', function(e) {
     e.preventDefault();
 
-    // Inputlardan qiymatlarni olish
     const inputs = this.querySelectorAll('input');
     const name = inputs[0].value;
     const phone = inputs[1].value;
 
-    // Telegram'ga yuboriladigan xabar matni
-    const message = `🚀 *Yangi Ariza (Elsevar Sayti)*\n\n👤 *Ismi:* ${name}\n📞 *Telefon:* ${phone}`;
+    const message = `🚀 Yangi Ariza (Elsevar Sayti)\n\n👤 Ismi: ${name}\n📞 Telefon: ${phone}`;
 
-    // Telegram API orqali xabar yuborish
+    // FormData orqali yuborish
+    const formData = new FormData();
+    formData.append('chat_id', CHAT_ID);
+    formData.append('text', message);
+
     fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
         method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-            chat_id: CHAT_ID,
-            text: message,
-            parse_mode: 'Markdown'
-        })
+        body: formData
     })
-    .then(response => {
-        if (response.ok) {
-            alert("Arizangiz muvaffaqiyatli yuborildi! Tez orada siz bilan bog'lanamiz.");
+    .then(response => response.json())
+    .then(data => {
+        if (data.ok) {
+            alert("Arizangiz muvaffaqiyatli yuborildi!");
             this.reset();
         } else {
-            alert("Xatolik yuz berdi. Qayta urinib ko'ring.");
+            alert("Xatolik: " + data.description);
         }
     })
     .catch(error => {
-        alert("Tarmoq xatosi yuz berdi: " + error);
+        alert("Tarmoq xatosi: " + error);
     });
 });
