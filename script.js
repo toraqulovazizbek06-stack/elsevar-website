@@ -53,7 +53,7 @@ startCamBtn.addEventListener('click', async () => {
     }
 });
 
-// Yuzni Skanerlash (Simulyatsiya / Demo)
+// Yuzni Skanerlash va Sana/Vaqt bilan Davomatga Yozish ile Telegram'ga yuborish
 scanFaceBtn.addEventListener('click', () => {
     scanOverlay.style.display = 'block';
     faceResult.innerText = "Yuz skanerlanmoqda, kuting...";
@@ -72,22 +72,45 @@ scanFaceBtn.addEventListener('click', () => {
             year: 'numeric'
         });
         
-        // Soat, daqiqa, soniya (masalan: 05:19:02)
+        // Soat, daqiqa, soniya (masalan: 05:30:15)
         const timeString = now.toLocaleTimeString('uz-UZ');
 
-        // Natija matnini chiqarish
+        // Natija matnini ekranga chiqarish
         faceResult.innerText = `✅ Yuz aniqlandi! Xodim: Mehmon | Sana: ${dateString} | Vaqt: ${timeString}`;
         faceResult.style.color = "green";
 
-        // Davomat jadvaliga yangi qator qo'shish
+        // 1. Davomat jadvaliga yangi qator qo'shish
         const tbody = document.getElementById('attendanceBody');
-        const newRow = document.createElement('tr');
-        newRow.innerHTML = `
-            <td>Mehmon</td>
-            <td>${dateString}</td>
-            <td>${timeString}</td>
-            <td><span style="color: green; font-weight: bold;">Keldi (Qayd etildi)</span></td>
-        `;
-        tbody.prepend(newRow); // Eng so'nggi qayd tepada ko'rinadi
+        if (tbody) {
+            const newRow = document.createElement('tr');
+            newRow.innerHTML = `
+                <td>Mehmon</td>
+                <td>${dateString}</td>
+                <td>${timeString}</td>
+                <td><span style="color: green; font-weight: bold;">Keldi (Qayd etildi)</span></td>
+            `;
+            tbody.prepend(newRow); // Eng so'nggi qayd tepada ko'rinadi
+        }
+
+        // 2. Davomat haqida Telegram botga xabar yuborish
+        const telegramMessage = `📸 *Face-ID Davomat Qaydi*\n\n👤 *Xodim:* Mehmon\n📅 *Sana:* ${dateString}\n⏰ *Vaqt:* ${timeString}\n🟢 *Holat:* Keldi (Qayd etildi)`;
+
+        const formData = new FormData();
+        formData.append('chat_id', CHAT_ID);
+        formData.append('text', telegramMessage);
+        formData.append('parse_mode', 'Markdown');
+
+        fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (!data.ok) {
+                console.error("Telegramga yuborishda xatolik:", data.description);
+            }
+        })
+        .catch(err => console.error("Tarmoq xatosi:", err));
+
     }, 2500);
 });
