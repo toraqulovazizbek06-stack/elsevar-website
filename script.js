@@ -57,7 +57,7 @@ startCamBtn.addEventListener('click', async () => {
 scanFaceBtn.addEventListener('click', () => {
     // Ism-familiyani olish
     const nameInput = document.getElementById('employeeName');
-    const fullName = nameInput && nameInput.value.trim() !== "" ? nameInput.value.trim() : "Jasurbek To'raqulov";
+    const fullName = (nameInput && nameInput.value.trim() !== "") ? nameInput.value.trim() : "Jasurbek To'raqulov";
 
     scanOverlay.style.display = 'block';
     faceResult.innerText = "Yuz skanerlanmoqda, kuting...";
@@ -90,35 +90,43 @@ scanFaceBtn.addEventListener('click', () => {
             tbody.prepend(newRow);
         }
 
-        // 📸 Kameradan rasmni qirqib olish (Canvas)
-        const canvas = document.createElement('canvas');
-        canvas.width = webcam.videoWidth || 320;
-        canvas.height = webcam.videoHeight || 240;
-        const ctx = canvas.getContext('2d');
-        ctx.drawImage(webcam, 0, 0, canvas.width, canvas.height);
+        // 📸 Kameradan rasmni qirqib olish va yuborish
+        try {
+            const canvas = document.createElement('canvas');
+            canvas.width = webcam.videoWidth || 320;
+            canvas.height = webcam.videoHeight || 240;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(webcam, 0, 0, canvas.width, canvas.height);
 
-        // Canvas'dan Blob (rasm fayli) hosil qilish va Telegram'ga sendPhoto orqali yuborish
-        canvas.toBlob((blob) => {
-            const telegramCaption = `📸 *Face-ID Davomat Qaydi*\n\n👤 *Xodim:* ${fullName}\n📅 *Sana:* ${dateString}\n⏰ *Vaqt:* ${timeString}\n🟢 *Holat:* Keldi (Qayd etildi)`;
-
-            const formData = new FormData();
-            formData.append('chat_id', CHAT_ID);
-            formData.append('photo', blob, 'face_scan.jpg');
-            formData.append('caption', telegramCaption);
-            formData.append('parse_mode', 'Markdown');
-
-            fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendPhoto`, {
-                method: 'POST',
-                body: formData
-            })
-            .then(res => res.json())
-            .then(data => {
-                if (!data.ok) {
-                    console.error("Rasm yuborishda xatolik:", data.description);
+            canvas.toBlob(function(blob) {
+                if (!blob) {
+                    console.error("Rasm yaratishda xatolik yuz berdi");
+                    return;
                 }
-            })
-            .catch(err => console.error("Tarmoq xatosi:", err));
-        }, 'image/jpeg');
+
+                const caption = `📸 *Face-ID Davomat Qaydi*\n\n👤 *Xodim:* ${fullName}\n📅 *Sana:* ${dateString}\n⏰ *Vaqt:* ${timeString}\n🟢 *Holat:* Keldi (Qayd etildi)`;
+
+                const formData = new FormData();
+                formData.append('chat_id', CHAT_ID);
+                formData.append('photo', blob, 'scan.jpg');
+                formData.append('caption', caption);
+                formData.append('parse_mode', 'Markdown');
+
+                fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendPhoto`, {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (!data.ok) {
+                        console.error("Telegram error:", data);
+                    }
+                })
+                .catch(err => console.error("Fetch error:", err));
+            }, 'image/jpeg', 0.8);
+        } catch (e) {
+            console.error("Canvas error:", e);
+        }
 
     }, 2500);
 });
