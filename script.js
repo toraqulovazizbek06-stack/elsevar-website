@@ -1,143 +1,148 @@
-// Telegram Sozlamalari
 const BOT_TOKEN = "8730808658:AAE2CxCZ6m2dQqqFxu7RuFgyMSyonE2NNCk";
-const CHAT_ID = "-1003954771903"; // Siz topgan to'g'ri ID
+const CHAT_ID = "-1003954771903";
 
-// HTML Elementlari
-const webcam = document.getElementById('webcam');
-const startCamBtn = document.getElementById('startCamBtn');
-const scanFaceBtn = document.getElementById('scanFaceBtn');
-const scanOverlay = document.getElementById('scanOverlay');
-const faceResult = document.getElementById('faceResult');
-const cameraSelect = document.getElementById('cameraSelect');
-
-let currentStream = null;
-
-// Kamerani yoqish funksiyasi
-async function startCamera() {
-    if (currentStream) {
-        currentStream.getTracks().forEach(track => track.stop());
+// Tarjimalar lug'ati
+const translations = {
+    uz: {
+        modalTitle: "Ro'yxatdan o'tish",
+        firstName: "Ism",
+        lastName: "Familiya",
+        phone: "Telefon raqam",
+        btn: "Kirish",
+        heroTitle: "Elsevar - Ishlab chiqarish va Nazorat Tizimi",
+        heroDesc: "Korxona va tekstil loyihalari uchun avtomatlashtirilgan boshqaruv platformasi",
+        faceTitle: "Face-ID Davomat Tizimi",
+        contactTitle: "Bog'lanish"
+    },
+    uz_cyrl: {
+        modalTitle: "Рўйхатдан ўтиш",
+        firstName: "Исм",
+        lastName: "Фамилия",
+        phone: "Телефон рақам",
+        btn: "Кириш",
+        heroTitle: "Elsevar - Ишлаб чиқариш ва Назорат Тизими",
+        heroDesc: "Корхона ва текстиль лойиҳалари учун автоматизация қилинган бошқарув платформаси",
+        faceTitle: "Face-ID Давомат Тизими",
+        contactTitle: "Боғланиш"
+    },
+    ru: {
+        modalTitle: "Регистрация",
+        firstName: "Имя",
+        lastName: "Фамилия",
+        phone: "Номер телефона",
+        btn: "Войти",
+        heroTitle: "Elsevar - Система управления и контроля производства",
+        heroDesc: "Автоматизированная платформа для текстильных и производственных предприятий",
+        faceTitle: "Система посещаемости Face-ID",
+        contactTitle: "Контакты"
+    },
+    tg: {
+        modalTitle: "Рӯйхатгирӣ",
+        firstName: "Ном",
+        lastName: "Насаб",
+        phone: "Рақами телефон",
+        btn: "Ворид шудан",
+        heroTitle: "Elsevar - Системаи идоракунӣ ва назорати истеҳсолот",
+        heroDesc: "Платформаи автоматикунонидашуда барои корхонаҳои бофандагӣ ва истеҳсолӣ",
+        faceTitle: "Системаи давомот Face-ID",
+        contactTitle: "Тамос"
+    },
+    en: {
+        modalTitle: "Registration",
+        firstName: "First Name",
+        lastName: "Last Name",
+        phone: "Phone Number",
+        btn: "Enter",
+        heroTitle: "Elsevar - Production Control System",
+        heroDesc: "Automated management platform for textile and production enterprises",
+        faceTitle: "Face-ID Attendance System",
+        contactTitle: "Contact Us"
     }
+};
 
-    const selectedMode = cameraSelect ? cameraSelect.value : 'user';
-    
-    const constraintsList = [
-        { video: { facingMode: { exact: selectedMode } } },
-        { video: { facingMode: selectedMode } },
-        { video: true }
-    ];
+function changeLanguage(lang) {
+    const t = translations[lang] || translations.uz;
+    document.getElementById('modalTitle').innerText = t.modalTitle;
+    document.getElementById('regFirstName').placeholder = t.firstName;
+    document.getElementById('regLastName').placeholder = t.lastName;
+    document.getElementById('regPhone').placeholder = t.phone;
+    document.getElementById('regBtn').innerText = t.btn;
+    document.getElementById('heroTitle').innerText = t.heroTitle;
+    document.getElementById('heroDesc').innerText = t.heroDesc;
+    document.getElementById('faceTitle').innerText = t.faceTitle;
+    document.getElementById('contactTitle').innerText = t.contactTitle;
+}
 
-    for (let constraints of constraintsList) {
-        try {
-            currentStream = await navigator.mediaDevices.getUserMedia(constraints);
-            webcam.srcObject = currentStream;
-            break;
-        } catch (e) {
-            console.warn("Kamera ulash urinishi:", constraints, e);
-        }
-    }
+function submitRegistration() {
+    const fname = document.getElementById('regFirstName').value.trim();
+    const lname = document.getElementById('regLastName').value.trim();
+    const phone = document.getElementById('regPhone').value.trim();
 
-    if (!webcam.srcObject) {
-        alert("Kameraga ulanib bo'lmadi! Brauzeringizda kameraga ruxsat berilganini tekshiring.");
+    if (!fname || !lname || phone.length < 9) {
+        alert("Iltimos, barcha maydonlarni to'g'ri to'ldiring!");
         return;
     }
 
-    startCamBtn.style.display = 'none';
-    scanFaceBtn.style.display = 'inline-block';
-    if (faceResult) {
-        faceResult.innerText = "Kamera faol. Yuzingizni kameraga qarating.";
-        faceResult.style.color = "#333";
-    }
+    document.getElementById('employeeName').value = fname + " " + lname;
+    document.getElementById('registerModal').style.display = 'none';
 }
+
+// Kamera funksiyalari
+const webcam = document.getElementById('webcam');
+const startCamBtn = document.getElementById('startCamBtn');
+const scanFaceBtn = document.getElementById('scanFaceBtn');
+const faceResult = document.getElementById('faceResult');
+let currentStream = null;
 
 if (startCamBtn) {
-    startCamBtn.addEventListener('click', startCamera);
-}
-
-if (cameraSelect) {
-    cameraSelect.addEventListener('change', () => {
-        if (currentStream) {
-            startCamera();
+    startCamBtn.addEventListener('click', async () => {
+        try {
+            currentStream = await navigator.mediaDevices.getUserMedia({ video: true });
+            webcam.srcObject = currentStream;
+            startCamBtn.style.display = 'none';
+            scanFaceBtn.style.display = 'inline-block';
+            faceResult.innerText = "Kamera faol. Yuzingizni qarating.";
+        } catch (e) {
+            alert("Kameraga ulanishda xatolik yuz berdi.");
         }
     });
 }
 
 if (scanFaceBtn) {
     scanFaceBtn.addEventListener('click', () => {
-        const nameInput = document.getElementById('employeeName');
-        const fullName = (nameInput && nameInput.value.trim() !== "") ? nameInput.value.trim() : "Jasurbek To'raqulov";
-
-        if (scanOverlay) scanOverlay.style.display = 'block';
-        if (faceResult) {
-            faceResult.innerText = "Yuz skanerlanmoqda, kuting...";
-            faceResult.style.color = "#007bff";
-        }
-
+        const fullName = document.getElementById('employeeName').value.trim() || "Noma'lum foydalanuvchi";
+        faceResult.innerText = "Skanerlanmoqda...";
+        
         setTimeout(() => {
-            if (scanOverlay) scanOverlay.style.display = 'none';
-            
             const now = new Date();
-            const dateString = now.toLocaleDateString('uz-UZ', {
-                day: '2-digit',
-                month: '2-digit',
-                year: 'numeric'
-            });
-            const timeString = now.toLocaleTimeString('uz-UZ');
+            const dateStr = now.toLocaleDateString('uz-UZ');
+            const timeStr = now.toLocaleTimeString('uz-UZ');
 
-            if (faceResult) {
-                faceResult.innerText = `✅ Yuz aniqlandi! Xodim: ${fullName} | Sana: ${dateString} | Vaqt: ${timeString}`;
-                faceResult.style.color = "green";
-            }
+            faceResult.innerText = `✅ Yuz aniqlandi: ${fullName} (${timeStr})`;
+            faceResult.style.color = "green";
 
-            const tbody = document.getElementById('attendanceBody');
-            if (tbody) {
-                const newRow = document.createElement('tr');
-                newRow.innerHTML = `
-                    <td>${fullName}</td>
-                    <td>${dateString}</td>
-                    <td>${timeString}</td>
-                    <td><span style="color: green; font-weight: bold;">Keldi (Qayd etildi)</span></td>
-                `;
-                tbody.prepend(newRow);
-            }
-
-            // 📸 Rasmni olib, Telegram guruhiga HTML formatda yuborish
+            // Telegramga rasm va ma'lumot yuborish
             try {
                 const canvas = document.createElement('canvas');
                 canvas.width = webcam.videoWidth || 320;
                 canvas.height = webcam.videoHeight || 240;
-                const ctx = canvas.getContext('2d');
-                ctx.drawImage(webcam, 0, 0, canvas.width, canvas.height);
+                canvas.getContext('2d').drawImage(webcam, 0, 0);
 
-                canvas.toBlob(function(blob) {
-                    if (!blob) return;
-
-                    const caption = `📸 <b>Face-ID Davomat Qaydi</b>\n\n👤 <b>Xodim:</b> ${fullName}\n📅 <b>Sana:</b> ${dateString}\n⏰ <b>Vaqt:</b> ${timeString}\n🟢 <b>Holat:</b> Keldi (Qayd etildi)`;
-
+                canvas.toBlob((blob) => {
                     const formData = new FormData();
                     formData.append('chat_id', CHAT_ID);
-                    formData.append('photo', blob, 'attendance.jpg');
-                    formData.append('caption', caption);
+                    formData.append('photo', blob, 'face.jpg');
+                    formData.append('caption', `📸 <b>Face-ID Qaydi</b>\n\n👤 <b>Xodim:</b> ${fullName}\n📅 <b>Sana:</b> ${dateStr}\n⏰ <b>Vaqt:</b> ${timeStr}`);
                     formData.append('parse_mode', 'HTML');
 
                     fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendPhoto`, {
                         method: 'POST',
                         body: formData
-                    })
-                    .then(res => res.json())
-                    .then(data => {
-                        if (!data.ok) {
-                            alert("Telegram xatosi: " + data.description);
-                        } else {
-                            console.log("Muvaffaqiyatli yuborildi!", data);
-                        }
-                    })
-                    .catch(err => console.error("Tarmoq xatosi:", err));
-
-                }, 'image/jpeg', 0.85);
+                    });
+                }, 'image/jpeg');
             } catch (err) {
-                console.error("Canvas xatosi:", err);
+                console.error(err);
             }
-
-        }, 2500);
+        }, 2000);
     });
 }

@@ -5,116 +5,110 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Elsevar - Ishlab chiqarish va Nazorat Tizimi</title>
     <link rel="stylesheet" href="style.css">
+    <style>
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.75);
+            display: flex; justify-content: center; align-items: center;
+            z-index: 1000;
+        }
+        .modal-card {
+            background: #ffffff; padding: 30px; border-radius: 15px;
+            width: 90%; max-width: 400px; text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+        .modal-card input {
+            width: 100%; padding: 12px; margin: 10px 0;
+            border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box;
+            font-size: 15px;
+        }
+        .modal-card button {
+            width: 100%; padding: 12px; background: #e61236;
+            color: #ffffff; border: none; border-radius: 8px;
+            font-size: 16px; font-weight: bold; cursor: pointer; margin-top: 10px;
+        }
+        .logo-main {
+            width: 200px; height: 200px; object-fit: cover; border-radius: 50%;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15); margin-bottom: 20px;
+        }
+        .lang-select {
+            padding: 8px 12px; border-radius: 6px; border: 1px solid #ccc; font-weight: bold;
+        }
+        .face-section {
+            background: #ffffff; max-width: 600px; margin: 30px auto; padding: 25px;
+            border-radius: 15px; box-shadow: 0 5px 20px rgba(0,0,0,0.08); text-align: center;
+        }
+        #webcam {
+            width: 100%; max-width: 400px; height: 260px; background: #000;
+            border-radius: 12px; margin: 15px 0; object-fit: cover;
+        }
+        .action-btn {
+            padding: 12px 25px; background: #ff9800; color: #fff; border: none;
+            border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 16px;
+        }
+    </style>
 </head>
 <body>
 
-    <!-- Header / Navigatsiya -->
-    <header>
-        <div class="logo">ELSEVAR</div>
-        <nav>
-            <a href="#about">Biz haqimizda</a>
-            <a href="#features">Imkoniyatlar</a>
-            <a href="#contact">Bog'lanish</a>
-        </nav>
+    <!-- Kirish va Ro'yxatdan o'tish oynasi -->
+    <div id="registerModal" class="modal-overlay">
+        <div class="modal-card">
+            <h2 id="modalTitle">Ro'yxatdan o'tish</h2>
+            <input type="text" id="regFirstName" placeholder="Ism" required>
+            <input type="text" id="regLastName" placeholder="Familiya" required>
+            <input type="tel" id="regPhone" placeholder="+998901234567" value="+998" required>
+            <button onclick="submitRegistration()" id="regBtn">Kirish</button>
+        </div>
+    </div>
+
+    <!-- Header -->
+    <header style="display:flex; justify-content:space-between; align-items:center; padding: 15px 5%; background:#ffffff; box-shadow: 0 2px 10px rgba(0,0,0,0.05);">
+        <div class="logo">
+            <img src="logo.jpg" alt="Elsevar Logo" style="height: 45px; border-radius: 50%;">
+        </div>
+        <div>
+            <select id="langSwitcher" class="lang-select" onchange="changeLanguage(this.value)">
+                <option value="uz">O'zbekcha</option>
+                <option value="uz_cyrl">Ўзбекча</option>
+                <option value="ru">Русский</option>
+                <option value="tg">Тоҷикӣ</option>
+                <option value="en">English</option>
+            </select>
+        </div>
     </header>
 
-    <!-- Bosh Bo'lim (Hero Section) -->
-    <section class="hero">
-        <div class="hero-text">
-            <h1>"Elsevar" semichka korxonasi uchun zamonaviy boshqaruv tizimi</h1>
-            <p>Xodimlarning keldi-ketdisi, Face-ID nazorati, maosh va KPI hisob-kitoblarini avtomatlashtiring!</p>
-            <a href="#contact" class="btn">Demo so'rash</a>
-        </div>
+    <!-- Asosiy Logo va Sarlavha -->
+    <section style="text-align:center; padding: 40px 20px 10px 20px;">
+        <img src="logo.jpg" alt="Elsevar" class="logo-main">
+        <h1 id="heroTitle" style="color: #222;">Elsevar - Ishlab chiqarish va Nazorat Tizimi</h1>
+        <p id="heroDesc" style="color: #666; font-size: 17px;">
+            Korxona va tekstil loyihalari uchun avtomatlashtirilgan boshqaruv platformasi
+        </p>
     </section>
 
-    <!-- Imkoniyatlar (Features) -->
-    <section id="features" class="features">
-        <h2>Tizim Imkoniyatlari</h2>
-        <div class="cards">
-            <div class="card">
-                <h3>Face-ID Nazorat</h3>
-                <p>Xodimlarning kelgan va ketgan vaqtini aniq fotosurat va biometriya orqali qayd etadi.</p>
-            </div>
-            <div class="card">
-                <h3>KPI va Maosh Hisobi</h3>
-                <p>Kechikishlar, jarimalar va bonuslarni avtomatik ravishda maoshga hisoblab beradi.</p>
-            </div>
-            <div class="card">
-                <h3>Excel Hisobotlar</h3>
-                <p>Birgina tugmani bosish orqali oylik va haftalik hisobotlarni Excel formatida yuklab oling.</p>
-            </div>
+    <!-- Face-ID Davomat Bo'limi -->
+    <section class="face-section">
+        <h2 id="faceTitle">Face-ID Davomat Tizimi</h2>
+        <video id="webcam" autoplay playsinline></video>
+        <div>
+            <input type="text" id="employeeName" placeholder="Ism va Familiyangizni kiriting" style="padding: 10px; width: 80%; border: 1px solid #ccc; border-radius: 6px; margin-bottom: 12px;">
         </div>
+        <div>
+            <button id="startCamBtn" class="action-btn">Kamerani Yoqish</button>
+            <button id="scanFaceBtn" class="action-btn" style="display:none; background: #4CAF50;">Skanerlash</button>
+        </div>
+        <div id="faceResult" style="margin-top: 15px; font-weight: bold;"></div>
     </section>
 
-    <!-- Face ID Demo Bo'limi -->
-<section id="faceid-demo" class="faceid-section">
-    <h2>Face-ID Davomat Tizimini Sinab Ko'ring</h2>
-    <p>Kamerangizni yoqing, ism-familiyangizni kiriting va skanerlang</p>
+    <!-- Bog'lanish Bo'limi -->
+    <section style="background:#f8f9fa; text-align:center; padding: 30px 20px; border-top: 1px solid #eee;">
+        <h2 id="contactTitle" style="margin-bottom: 10px;">Bog'lanish</h2>
+        <p style="font-size: 22px; font-weight: bold;">
+            📞 <a href="tel:+998996841001" style="color:#e61236; text-decoration:none;">+998 99 684 10 01</a>
+        </p>
+    </section>
 
-    <!-- Kamera oynasi -->
-    <div class="camera-container">
-        <video id="webcam" autoplay playsinline width="320" height="240"></video>
-        <div class="scan-overlay" id="scanOverlay"></div>
-    </div>
-
-    <!-- Ism-Familiya inputi -->
-    <div style="margin-bottom: 15px;">
-        <input type="text" id="employeeName" placeholder="Ism va Familiyangizni kiriting" style="padding: 10px; width: 80%; max-width: 300px; border: 1px solid #ccc; border-radius: 6px;">
-    </div>
-
-    <!-- 2-KOD: Kamera tanlash menyusi (AYNAN SHU YERGA JOYLASHTIRING) -->
-    <div style="margin-bottom: 15px;">
-        <select id="cameraSelect" style="padding: 10px; border-radius: 6px; border: 1px solid #ccc; width: 80%; max-width: 300px;">
-            <option value="user">Oldi kamera (Front)</option>
-            <option value="environment">Orqa kamera (Back)</option>
-        </select>
-    </div>
-
-    <!-- Tugmalar -->
-    <div class="controls">
-        <button id="startCamBtn" class="btn">Kamerani Yoqish</button>
-        <button id="scanFaceBtn" class="btn btn-success" style="display:none;">Yuzni Skanerlash</button>
-    </div>
-
-    <div id="faceResult" class="face-result"></div>
-
-    <!-- Davomat Jadvali -->
-    <div class="attendance-history">
-        <h3>Davomat Jadvali</h3>
-        <table id="attendanceTable">
-            <thead>
-                <tr>
-                    <th>Xodim</th>
-                    <th>Sana</th>
-                    <th>Vaqt</th>
-                    <th>Holat</th>
-                </tr>
-            </thead>
-            <tbody id="attendanceBody"></tbody>
-        </table>
-    </div>
-</section>
-                <!-- Skaner qilingan sana va vaqtlar shu yerga avtomatik tushadi -->
-            </tbody>
-        </table>
-    </div>
-</section>
-
-    <!-- Bog'lanish / Ariza (Contact Form) -->
-    <section id="contact" class="contact">
-    <h2>Demo Versiyaga Ariza Qoldiring</h2>
-    <form id="leadForm">
-        <input type="text" placeholder="Ismingiz" required>
-        <input type="tel" placeholder="Telefon raqamingiz" required>
-        <button type="submit" class="btn">Yuborish</button>
-    </form>
-</section>
-
-    <!-- Footer -->
-    <footer>
-        <p>&copy; 2026 Elsevar Semichka Ishlab Chiqarish Korxonasi. Barcha huquqlar himoyalangan.</p>
-    </footer>
-
-    <script src="script.js?v=4.0"></script>
+    <script src="script.js?v=7.0"></script>
 </body>
 </html>
