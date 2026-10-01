@@ -1,8 +1,8 @@
-// Telegram Sozlamalari
+// Telegram sozlamalari
 const BOT_TOKEN = "8730808658:AAE2CxCZ6m2dQqqFxu7RuFgyMSyonE2NNCk";
 const CHAT_ID = "-1005157110689"; // Yopiq guruh ID'si
 
-// HTML Elementlari
+// HTML elementlari
 const webcam = document.getElementById('webcam');
 const startCamBtn = document.getElementById('startCamBtn');
 const scanFaceBtn = document.getElementById('scanFaceBtn');
@@ -12,7 +12,7 @@ const cameraSelect = document.getElementById('cameraSelect');
 
 let currentStream = null;
 
-// Kamerani xavfsiz yoqish funksiyasi
+// Kamerani yoqish funksiyasi
 async function startCamera() {
     if (currentStream) {
         currentStream.getTracks().forEach(track => track.stop());
@@ -32,12 +32,12 @@ async function startCamera() {
             webcam.srcObject = currentStream;
             break;
         } catch (e) {
-            console.warn("Kamera ulash urinishi muvaffaqiyatsiz:", constraints, e);
+            console.warn("Kamerani ulashda xatolik:", constraints, e);
         }
     }
 
     if (!webcam.srcObject) {
-        alert("Kameraga ulanib bo'lmadi! Brauzeringizda kameraga ruxsat berilganini tekshiring.");
+        alert("Kameraga ulanib bo'lmadi! Brauzer ruxsatlarini tekshiring.");
         return;
     }
 
@@ -49,7 +49,7 @@ async function startCamera() {
     }
 }
 
-// Tugma va Select voqealari
+// Hodisalarni tinglash
 if (startCamBtn) {
     startCamBtn.addEventListener('click', startCamera);
 }
@@ -62,7 +62,7 @@ if (cameraSelect) {
     });
 }
 
-// Face-ID Skanerlash va Guruhga Yuborish
+// Yuzni skanerlash va Telegram guruhiga yuborish
 if (scanFaceBtn) {
     scanFaceBtn.addEventListener('click', () => {
         const nameInput = document.getElementById('employeeName');
@@ -90,7 +90,7 @@ if (scanFaceBtn) {
                 faceResult.style.color = "green";
             }
 
-            // Sahifadagi jadvalga qo'shish
+            // Jadvalga qo'shish
             const tbody = document.getElementById('attendanceBody');
             if (tbody) {
                 const newRow = document.createElement('tr');
@@ -103,7 +103,7 @@ if (scanFaceBtn) {
                 tbody.prepend(newRow);
             }
 
-            // 📸 Rasmni tayyorlash va Telegram guruhiga HTML formatda yuborish
+            // Rasmni olib, Telegram'ga yuborish (HTML formatda)
             try {
                 const canvas = document.createElement('canvas');
                 canvas.width = webcam.videoWidth || 320;
@@ -132,13 +132,13 @@ if (scanFaceBtn) {
                     .then(res => res.json())
                     .then(data => {
                         if (!data.ok) {
-                            console.error("Telegram xatolik tafsiloti:", data);
-                            alert("Telegram Xatosi: " + data.description);
+                            console.error("Telegram xatosi:", data);
+                            alert("Telegram xatosi: " + data.description);
                         } else {
                             console.log("Muvaffaqiyatli yuborildi:", data);
                         }
                     })
-                    .catch(err => console.error("Tarmoq xatoligi:", err));
+                    .catch(err => console.error("Tarmoq xatosi:", err));
 
                 }, 'image/jpeg', 0.85);
             } catch (err) {
