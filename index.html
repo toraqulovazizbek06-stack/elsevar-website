@@ -51,6 +51,7 @@
     <h2>Face-ID Davomat Tizimini Sinab Ko'ring</h2>
     <p>Kamerangizni yoqing, ism-familiyangizni kiriting va skanerlang</p>
 
+    <!-- Kamera oynasi -->
     <div class="camera-container">
         <video id="webcam" autoplay playsinline width="320" height="240"></video>
         <div class="scan-overlay" id="scanOverlay"></div>
@@ -61,6 +62,15 @@
         <input type="text" id="employeeName" placeholder="Ism va Familiyangizni kiriting" style="padding: 10px; width: 80%; max-width: 300px; border: 1px solid #ccc; border-radius: 6px;">
     </div>
 
+    <!-- 2-KOD: Kamera tanlash menyusi (AYNAN SHU YERGA JOYLASHTIRING) -->
+    <div style="margin-bottom: 15px;">
+        <select id="cameraSelect" style="padding: 10px; border-radius: 6px; border: 1px solid #ccc; width: 80%; max-width: 300px;">
+            <option value="user">Oldi kamera (Front)</option>
+            <option value="environment">Orqa kamera (Back)</option>
+        </select>
+    </div>
+
+    <!-- Tugmalar -->
     <div class="controls">
         <button id="startCamBtn" class="btn">Kamerani Yoqish</button>
         <button id="scanFaceBtn" class="btn btn-success" style="display:none;">Yuzni Skanerlash</button>
@@ -68,6 +78,7 @@
 
     <div id="faceResult" class="face-result"></div>
 
+    <!-- Davomat Jadvali -->
     <div class="attendance-history">
         <h3>Davomat Jadvali</h3>
         <table id="attendanceTable">
@@ -83,19 +94,6 @@
         </table>
     </div>
 </section>
-    <!-- Davomat Jadvali (Aynan shu yerda Sana va Vaqt ustunlari bor) -->
-    <div class="attendance-history">
-        <h3>Davomat Jadvali</h3>
-        <table id="attendanceTable">
-            <thead>
-                <tr>
-                    <th>Xodim</th>
-                    <th>Sana</th>
-                    <th>Vaqt</th>
-                    <th>Holat</th>
-                </tr>
-            </thead>
-            <tbody id="attendanceBody">
                 <!-- Skaner qilingan sana va vaqtlar shu yerga avtomatik tushadi -->
             </tbody>
         </table>

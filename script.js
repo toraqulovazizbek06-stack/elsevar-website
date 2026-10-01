@@ -1,5 +1,5 @@
 const BOT_TOKEN = "8730808658:AAE2CxCZ6m2dQqqFxu7RuFgyMSyonE2NNCk";
-const CHAT_ID = "8431365235";
+const CHAT_ID = "-1005157110689";
 
 document.getElementById('leadForm').addEventListener('submit', function(e) {
     e.preventDefault();
@@ -37,25 +37,57 @@ const webcam = document.getElementById('webcam');
 const startCamBtn = document.getElementById('startCamBtn');
 const scanFaceBtn = document.getElementById('scanFaceBtn');
 const scanOverlay = document.getElementById('scanOverlay');
-const faceResult = document.getElementById('faceResult'); // ✅ To'g'ri
+const faceResult = document.getElementById('faceResult');
+const cameraSelect = document.getElementById('cameraSelect');
 
-// Kamerani Yoqish
-startCamBtn.addEventListener('click', async () => {
+let currentStream = null;
+
+// Eski kamera oqimini to'xtatish
+function stopCameraStream() {
+    if (currentStream) {
+        currentStream.getTracks().forEach(track => track.stop());
+    }
+}
+
+// Tanlangan kamerani yoqish
+async function startCamera() {
+    stopCameraStream();
+    const facingMode = cameraSelect.value; // 'user' yoki 'environment'
+
     try {
-        const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-        webcam.srcObject = stream;
-        startCamBtn.style.display = 'none';
-        scanFaceBtn.style.display = 'inline-block';
-        faceResult.innerText = "Kamera faol. Yuzingizni kameraga qarating.";
-        faceResult.style.color = "#333";
+        currentStream = await navigator.mediaDevices.getUserMedia({
+            video: { facingMode: { exact: facingMode } }
+        });
+        webcam.srcObject = currentStream;
     } catch (err) {
-        alert("Kameraga ruxsat berilmadi yoki kamera topilmadi!");
+        try {
+            currentStream = await navigator.mediaDevices.getUserMedia({
+                video: { facingMode: facingMode }
+            });
+            webcam.srcObject = currentStream;
+        } catch (e) {
+            alert("Kamera topilmadi yoki ruxsat berilmadi!");
+            return;
+        }
+    }
+
+    startCamBtn.style.display = 'none';
+    scanFaceBtn.style.display = 'inline-block';
+    faceResult.innerText = "Kamera faol. Yuzingizni kameraga qarating.";
+    faceResult.style.color = "#333";
+}
+
+// Menyu o'zgarganda kamerani almashtirish
+cameraSelect.addEventListener('change', () => {
+    if (currentStream) {
+        startCamera();
     }
 });
 
-// Yuzni Skanerlash va Sana/Vaqt bilan Davomatga Yozish ile Telegram'ga yuborish
+startCamBtn.addEventListener('click', startCamera);
+
+// Skanerlash va guruhga yuborish
 scanFaceBtn.addEventListener('click', () => {
-    // Ism-familiyani olish
     const nameInput = document.getElementById('employeeName');
     const fullName = (nameInput && nameInput.value.trim() !== "") ? nameInput.value.trim() : "Jasurbek To'raqulov";
 
@@ -77,7 +109,7 @@ scanFaceBtn.addEventListener('click', () => {
         faceResult.innerText = `✅ Yuz aniqlandi! Xodim: ${fullName} | Sana: ${dateString} | Vaqt: ${timeString}`;
         faceResult.style.color = "green";
 
-        // Davomat jadvaliga qo'shish
+        // Sahifadagi jadvalga qo'shish
         const tbody = document.getElementById('attendanceBody');
         if (tbody) {
             const newRow = document.createElement('tr');
@@ -90,7 +122,7 @@ scanFaceBtn.addEventListener('click', () => {
             tbody.prepend(newRow);
         }
 
-        // 📸 Kameradan rasmni qirqib olish va yuborish
+        // Rasmni qirqib olish va yopiq guruhga yuborish
         try {
             const canvas = document.createElement('canvas');
             canvas.width = webcam.videoWidth || 320;
@@ -99,15 +131,12 @@ scanFaceBtn.addEventListener('click', () => {
             ctx.drawImage(webcam, 0, 0, canvas.width, canvas.height);
 
             canvas.toBlob(function(blob) {
-                if (!blob) {
-                    console.error("Rasm yaratishda xatolik yuz berdi");
-                    return;
-                }
+                if (!blob) return;
 
                 const caption = `📸 *Face-ID Davomat Qaydi*\n\n👤 *Xodim:* ${fullName}\n📅 *Sana:* ${dateString}\n⏰ *Vaqt:* ${timeString}\n🟢 *Holat:* Keldi (Qayd etildi)`;
 
                 const formData = new FormData();
-                formData.append('chat_id', CHAT_ID);
+                formData.append('chat_id', CHAT_ID); // Yopiq guruh ID'si (-100...)
                 formData.append('photo', blob, 'scan.jpg');
                 formData.append('caption', caption);
                 formData.append('parse_mode', 'Markdown');
@@ -118,11 +147,9 @@ scanFaceBtn.addEventListener('click', () => {
                 })
                 .then(res => res.json())
                 .then(data => {
-                    if (!data.ok) {
-                        console.error("Telegram error:", data);
-                    }
+                    if (!data.ok) console.error("Telegram xatolik:", data);
                 })
-                .catch(err => console.error("Fetch error:", err));
+                .catch(err => console.error("Tarmoq xatosi:", err));
             }, 'image/jpeg', 0.8);
         } catch (e) {
             console.error("Canvas error:", e);
