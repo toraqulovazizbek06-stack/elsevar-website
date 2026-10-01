@@ -62,9 +62,32 @@ scanFaceBtn.addEventListener('click', () => {
     setTimeout(() => {
         scanOverlay.style.display = 'none';
         
-        // Muvaffaqiyatli aniqlangan holat
-        const now = new Date().toLocaleTimeString('uz-UZ');
-        faceResult.innerText = `✅ Yuz aniqlandi! Xodim: Mehmon | Vaqt: ${now} (Davomatga yozildi)`;
+        // Hozirgi sana va vaqtni olish
+        const now = new Date();
+        
+        // Sana, oy, yil (masalan: 01.10.2026)
+        const dateString = now.toLocaleDateString('uz-UZ', {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric'
+        });
+        
+        // Soat, daqiqa, soniya (masalan: 05:19:02)
+        const timeString = now.toLocaleTimeString('uz-UZ');
+
+        // Natija matnini chiqarish
+        faceResult.innerText = `✅ Yuz aniqlandi! Xodim: Mehmon | Sana: ${dateString} | Vaqt: ${timeString}`;
         faceResult.style.color = "green";
+
+        // Davomat jadvaliga yangi qator qo'shish
+        const tbody = document.getElementById('attendanceBody');
+        const newRow = document.createElement('tr');
+        newRow.innerHTML = `
+            <td>Mehmon</td>
+            <td>${dateString}</td>
+            <td>${timeString}</td>
+            <td><span style="color: green; font-weight: bold;">Keldi (Qayd etildi)</span></td>
+        `;
+        tbody.prepend(newRow); // Eng so'nggi qayd tepada ko'rinadi
     }, 2500);
 });
