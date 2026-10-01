@@ -49,11 +49,16 @@
     <!-- Face ID Demo Bo'limi -->
 <section id="faceid-demo" class="faceid-section">
     <h2>Face-ID Davomat Tizimini Sinab Ko'ring</h2>
-    <p>Kamerangizni yoqing va yuzingizni skanerlang</p>
+    <p>Kamerangizni yoqing, ism-familiyangizni kiriting va skanerlang</p>
 
     <div class="camera-container">
         <video id="webcam" autoplay playsinline width="320" height="240"></video>
         <div class="scan-overlay" id="scanOverlay"></div>
+    </div>
+
+    <!-- Ism-Familiya inputi -->
+    <div style="margin-bottom: 15px;">
+        <input type="text" id="employeeName" placeholder="Ism va Familiyangizni kiriting" style="padding: 10px; width: 80%; max-width: 300px; border: 1px solid #ccc; border-radius: 6px;">
     </div>
 
     <div class="controls">
@@ -63,6 +68,21 @@
 
     <div id="faceResult" class="face-result"></div>
 
+    <div class="attendance-history">
+        <h3>Davomat Jadvali</h3>
+        <table id="attendanceTable">
+            <thead>
+                <tr>
+                    <th>Xodim</th>
+                    <th>Sana</th>
+                    <th>Vaqt</th>
+                    <th>Holat</th>
+                </tr>
+            </thead>
+            <tbody id="attendanceBody"></tbody>
+        </table>
+    </div>
+</section>
     <!-- Davomat Jadvali (Aynan shu yerda Sana va Vaqt ustunlari bor) -->
     <div class="attendance-history">
         <h3>Davomat Jadvali</h3>

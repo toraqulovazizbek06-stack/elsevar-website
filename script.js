@@ -55,6 +55,10 @@ startCamBtn.addEventListener('click', async () => {
 
 // Yuzni Skanerlash va Sana/Vaqt bilan Davomatga Yozish ile Telegram'ga yuborish
 scanFaceBtn.addEventListener('click', () => {
+    // Ism-familiyani olish
+    const nameInput = document.getElementById('employeeName');
+    const fullName = nameInput && nameInput.value.trim() !== "" ? nameInput.value.trim() : "Jasurbek To'raqulov";
+
     scanOverlay.style.display = 'block';
     faceResult.innerText = "Yuz skanerlanmoqda, kuting...";
     faceResult.style.color = "#007bff";
@@ -62,55 +66,59 @@ scanFaceBtn.addEventListener('click', () => {
     setTimeout(() => {
         scanOverlay.style.display = 'none';
         
-        // Hozirgi sana va vaqtni olish
         const now = new Date();
-        
-        // Sana, oy, yil (masalan: 01.10.2026)
         const dateString = now.toLocaleDateString('uz-UZ', {
             day: '2-digit',
             month: '2-digit',
             year: 'numeric'
         });
-        
-        // Soat, daqiqa, soniya (masalan: 05:30:15)
         const timeString = now.toLocaleTimeString('uz-UZ');
 
-        // Natija matnini ekranga chiqarish
-        faceResult.innerText = `✅ Yuz aniqlandi! Xodim: Mehmon | Sana: ${dateString} | Vaqt: ${timeString}`;
+        faceResult.innerText = `✅ Yuz aniqlandi! Xodim: ${fullName} | Sana: ${dateString} | Vaqt: ${timeString}`;
         faceResult.style.color = "green";
 
-        // 1. Davomat jadvaliga yangi qator qo'shish
+        // Davomat jadvaliga qo'shish
         const tbody = document.getElementById('attendanceBody');
         if (tbody) {
             const newRow = document.createElement('tr');
             newRow.innerHTML = `
-                <td>Mehmon</td>
+                <td>${fullName}</td>
                 <td>${dateString}</td>
                 <td>${timeString}</td>
                 <td><span style="color: green; font-weight: bold;">Keldi (Qayd etildi)</span></td>
             `;
-            tbody.prepend(newRow); // Eng so'nggi qayd tepada ko'rinadi
+            tbody.prepend(newRow);
         }
 
-        // 2. Davomat haqida Telegram botga xabar yuborish
-        const telegramMessage = `📸 *Face-ID Davomat Qaydi*\n\n👤 *Xodim:* Mehmon\n📅 *Sana:* ${dateString}\n⏰ *Vaqt:* ${timeString}\n🟢 *Holat:* Keldi (Qayd etildi)`;
+        // 📸 Kameradan rasmni qirqib olish (Canvas)
+        const canvas = document.createElement('canvas');
+        canvas.width = webcam.videoWidth || 320;
+        canvas.height = webcam.videoHeight || 240;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(webcam, 0, 0, canvas.width, canvas.height);
 
-        const formData = new FormData();
-        formData.append('chat_id', CHAT_ID);
-        formData.append('text', telegramMessage);
-        formData.append('parse_mode', 'Markdown');
+        // Canvas'dan Blob (rasm fayli) hosil qilish va Telegram'ga sendPhoto orqali yuborish
+        canvas.toBlob((blob) => {
+            const telegramCaption = `📸 *Face-ID Davomat Qaydi*\n\n👤 *Xodim:* ${fullName}\n📅 *Sana:* ${dateString}\n⏰ *Vaqt:* ${timeString}\n🟢 *Holat:* Keldi (Qayd etildi)`;
 
-        fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
-            method: 'POST',
-            body: formData
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (!data.ok) {
-                console.error("Telegramga yuborishda xatolik:", data.description);
-            }
-        })
-        .catch(err => console.error("Tarmoq xatosi:", err));
+            const formData = new FormData();
+            formData.append('chat_id', CHAT_ID);
+            formData.append('photo', blob, 'face_scan.jpg');
+            formData.append('caption', telegramCaption);
+            formData.append('parse_mode', 'Markdown');
+
+            fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendPhoto`, {
+                method: 'POST',
+                body: formData
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (!data.ok) {
+                    console.error("Rasm yuborishda xatolik:", data.description);
+                }
+            })
+            .catch(err => console.error("Tarmoq xatosi:", err));
+        }, 'image/jpeg');
 
     }, 2500);
 });
