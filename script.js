@@ -1,8 +1,9 @@
-// Telegram sozlamalari
+<script>
+// Telegram Sozlamalari
 const BOT_TOKEN = "8730808658:AAE2CxCZ6m2dQqqFxu7RuFgyMSyonE2NNCk";
-const CHAT_ID = "-1005157110689"; // Yopiq guruh ID'si
+const CHAT_ID = "-1003954771903";
 
-// HTML elementlari
+// HTML Elementlari
 const webcam = document.getElementById('webcam');
 const startCamBtn = document.getElementById('startCamBtn');
 const scanFaceBtn = document.getElementById('scanFaceBtn');
@@ -12,7 +13,6 @@ const cameraSelect = document.getElementById('cameraSelect');
 
 let currentStream = null;
 
-// Kamerani yoqish funksiyasi
 async function startCamera() {
     if (currentStream) {
         currentStream.getTracks().forEach(track => track.stop());
@@ -49,7 +49,6 @@ async function startCamera() {
     }
 }
 
-// Hodisalarni tinglash
 if (startCamBtn) {
     startCamBtn.addEventListener('click', startCamera);
 }
@@ -62,7 +61,6 @@ if (cameraSelect) {
     });
 }
 
-// Yuzni skanerlash va Telegram guruhiga yuborish
 if (scanFaceBtn) {
     scanFaceBtn.addEventListener('click', () => {
         const nameInput = document.getElementById('employeeName');
@@ -90,7 +88,6 @@ if (scanFaceBtn) {
                 faceResult.style.color = "green";
             }
 
-            // Jadvalga qo'shish
             const tbody = document.getElementById('attendanceBody');
             if (tbody) {
                 const newRow = document.createElement('tr');
@@ -103,7 +100,6 @@ if (scanFaceBtn) {
                 tbody.prepend(newRow);
             }
 
-            // Rasmni olib, Telegram'ga yuborish (HTML formatda)
             try {
                 const canvas = document.createElement('canvas');
                 canvas.width = webcam.videoWidth || 320;
@@ -112,10 +108,7 @@ if (scanFaceBtn) {
                 ctx.drawImage(webcam, 0, 0, canvas.width, canvas.height);
 
                 canvas.toBlob(function(blob) {
-                    if (!blob) {
-                        console.error("Rasm fayli yaratilmadi.");
-                        return;
-                    }
+                    if (!blob) return;
 
                     const caption = `📸 <b>Face-ID Davomat Qaydi</b>\n\n👤 <b>Xodim:</b> ${fullName}\n📅 <b>Sana:</b> ${dateString}\n⏰ <b>Vaqt:</b> ${timeString}\n🟢 <b>Holat:</b> Keldi (Qayd etildi)`;
 
@@ -132,10 +125,7 @@ if (scanFaceBtn) {
                     .then(res => res.json())
                     .then(data => {
                         if (!data.ok) {
-                            console.error("Telegram xatosi:", data);
                             alert("Telegram xatosi: " + data.description);
-                        } else {
-                            console.log("Muvaffaqiyatli yuborildi:", data);
                         }
                     })
                     .catch(err => console.error("Tarmoq xatosi:", err));
@@ -148,3 +138,4 @@ if (scanFaceBtn) {
         }, 2500);
     });
 }
+</script>
