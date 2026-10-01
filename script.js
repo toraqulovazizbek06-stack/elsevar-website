@@ -37,7 +37,7 @@ const webcam = document.getElementById('webcam');
 const startCamBtn = document.getElementById('startCamBtn');
 const scanFaceBtn = document.getElementById('scanFaceBtn');
 const scanOverlay = document.getElementById('scanOverlay');
-const faceResult = document.getElementById('faceResult');
+const faceResult = document.getElementById('faceResult'); // ✅ To'g'ri
 
 // Kamerani Yoqish
 startCamBtn.addEventListener('click', async () => {
