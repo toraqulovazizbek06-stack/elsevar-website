@@ -1,7 +1,6 @@
-<script>
 // Telegram Sozlamalari
 const BOT_TOKEN = "8730808658:AAE2CxCZ6m2dQqqFxu7RuFgyMSyonE2NNCk";
-const CHAT_ID = "-1003954771903";
+const CHAT_ID = "-1003954771903"; // Siz topgan to'g'ri ID
 
 // HTML Elementlari
 const webcam = document.getElementById('webcam');
@@ -13,6 +12,7 @@ const cameraSelect = document.getElementById('cameraSelect');
 
 let currentStream = null;
 
+// Kamerani yoqish funksiyasi
 async function startCamera() {
     if (currentStream) {
         currentStream.getTracks().forEach(track => track.stop());
@@ -32,12 +32,12 @@ async function startCamera() {
             webcam.srcObject = currentStream;
             break;
         } catch (e) {
-            console.warn("Kamerani ulashda xatolik:", constraints, e);
+            console.warn("Kamera ulash urinishi:", constraints, e);
         }
     }
 
     if (!webcam.srcObject) {
-        alert("Kameraga ulanib bo'lmadi! Brauzer ruxsatlarini tekshiring.");
+        alert("Kameraga ulanib bo'lmadi! Brauzeringizda kameraga ruxsat berilganini tekshiring.");
         return;
     }
 
@@ -100,6 +100,7 @@ if (scanFaceBtn) {
                 tbody.prepend(newRow);
             }
 
+            // 📸 Rasmni olib, Telegram guruhiga HTML formatda yuborish
             try {
                 const canvas = document.createElement('canvas');
                 canvas.width = webcam.videoWidth || 320;
@@ -126,6 +127,8 @@ if (scanFaceBtn) {
                     .then(data => {
                         if (!data.ok) {
                             alert("Telegram xatosi: " + data.description);
+                        } else {
+                            console.log("Muvaffaqiyatli yuborildi!", data);
                         }
                     })
                     .catch(err => console.error("Tarmoq xatosi:", err));
@@ -138,4 +141,3 @@ if (scanFaceBtn) {
         }, 2500);
     });
 }
-</script>
