@@ -96,43 +96,44 @@ scanFaceBtn.addEventListener('click', () => {
         }
 
         // 📸 Rasmni tayyorlash va Telegram guruhiga yuborish
-        try {
-            const canvas = document.createElement('canvas');
-            canvas.width = webcam.videoWidth || 320;
-            canvas.height = webcam.videoHeight || 240;
-            const ctx = canvas.getContext('2d');
-            ctx.drawImage(webcam, 0, 0, canvas.width, canvas.height);
+try {
+    const canvas = document.createElement('canvas');
+    canvas.width = webcam.videoWidth || 320;
+    canvas.height = webcam.videoHeight || 240;
+    const ctx = canvas.getContext('2d');
+    ctx.drawImage(webcam, 0, 0, canvas.width, canvas.height);
 
-            canvas.toBlob(function(blob) {
-                if (!blob) {
-                    console.error("Rasm fayli yaratilmadi.");
-                    return;
-                }
-
-                const caption = `📸 *Face-ID Davomat Qaydi*\n\n👤 *Xodim:* ${fullName}\n📅 *Sana:* ${dateString}\n⏰ *Vaqt:* ${timeString}\n🟢 *Holat:* Keldi (Qayd etildi)`;
-
-                const formData = new FormData();
-                formData.append('chat_id', CHAT_ID);
-                formData.append('photo', blob, 'attendance.jpg');
-                formData.append('caption', caption);
-                formData.append('parse_mode', 'Markdown');
-
-                fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendPhoto`, {
-                    method: 'POST',
-                    body: formData
-                })
-                .then(res => res.json())
-                .then(data => {
-                    if (!data.ok) {
-                        alert("Telegramga yuborishda xatolik: " + data.description);
-                    }
-                })
-                .catch(err => console.error("Tarmoq xatoligi:", err));
-
-            }, 'image/jpeg', 0.85);
-        } catch (err) {
-            console.error("Canvas xatosi:", err);
+    canvas.toBlob(function(blob) {
+        if (!blob) {
+            console.error("Rasm fayli yaratilmadi.");
+            return;
         }
 
-    }, 2500);
-});
+        // Matn HTML formatiga o'tkazildi (xatoliklarsiz ishlaydi)
+        const caption = `📸 <b>Face-ID Davomat Qaydi</b>\n\n👤 <b>Xodim:</b> ${fullName}\n📅 <b>Sana:</b> ${dateString}\n⏰ <b>Vaqt:</b> ${timeString}\n🟢 <b>Holat:</b> Keldi (Qayd etildi)`;
+
+        const formData = new FormData();
+        formData.append('chat_id', CHAT_ID);
+        formData.append('photo', blob, 'attendance.jpg');
+        formData.append('caption', caption);
+        formData.append('parse_mode', 'HTML'); // Markdown o'rniga HTML ishlatildi
+
+        fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendPhoto`, {
+            method: 'POST',
+            body: formData
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (!data.ok) {
+                console.error("Telegram xatolik tafsiloti:", data);
+                alert("Telegram Xatosi: " + data.description);
+            } else {
+                console.log("Muvaffaqiyatli yuborildi:", data);
+            }
+        })
+        .catch(err => console.error("Tarmoq xatoligi:", err));
+
+    }, 'image/jpeg', 0.85);
+} catch (err) {
+    console.error("Canvas xatosi:", err);
+}
