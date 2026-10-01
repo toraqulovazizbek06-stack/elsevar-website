@@ -6,52 +6,100 @@
     <title>Elsevar - Ishlab chiqarish va Nazorat Tizimi</title>
     <link rel="stylesheet" href="style.css">
     <style>
+        /* Premium fon va naqshlar */
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Roboto, sans-serif;
+            background-color: #f4f6f9;
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(230, 18, 54, 0.08) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(230, 18, 54, 0.08) 0px, transparent 50%),
+                radial-gradient(rgba(0, 0, 0, 0.04) 1px, transparent 1px);
+            background-size: 100% 100%, 100% 100%, 20px 20px;
+            min-height: 100vh;
+        }
+
+        /* Modal oyna */
         .modal-overlay {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.75);
             display: flex; justify-content: center; align-items: center;
             z-index: 1000;
+            backdrop-filter: blur(4px);
         }
         .modal-card {
-            background: #ffffff; padding: 30px; border-radius: 15px;
+            background: #ffffff; padding: 30px; border-radius: 16px;
             width: 90%; max-width: 400px; text-align: center;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.25);
         }
         .modal-card input {
             width: 100%; padding: 12px; margin: 10px 0;
-            border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box;
-            font-size: 15px;
+            border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box;
+            font-size: 15px; outline: none;
+        }
+        .modal-card input:focus {
+            border-color: #e61236;
         }
         .modal-card button {
             width: 100%; padding: 12px; background: #e61236;
             color: #ffffff; border: none; border-radius: 8px;
             font-size: 16px; font-weight: bold; cursor: pointer; margin-top: 10px;
+            transition: 0.3s;
         }
+        .modal-card button:hover {
+            background: #c40e2d;
+        }
+
+        /* Header */
+        header {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 15px 5%; background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+
         .logo-main {
-            width: 200px; height: 200px; object-fit: cover; border-radius: 50%;
-            box-shadow: 0 8px 20px rgba(0,0,0,0.15); margin-bottom: 20px;
+            width: 180px; height: 180px; object-fit: cover; border-radius: 50%;
+            box-shadow: 0 10px 25px rgba(230, 18, 54, 0.2); margin-bottom: 15px;
+            border: 4px solid #fff;
         }
         .lang-select {
             padding: 8px 12px; border-radius: 6px; border: 1px solid #ccc; font-weight: bold;
+            outline: none; cursor: pointer;
         }
+
+        /* Face-ID Section */
         .face-section {
-            background: #ffffff; max-width: 600px; margin: 30px auto; padding: 25px;
-            border-radius: 15px; box-shadow: 0 5px 20px rgba(0,0,0,0.08); text-align: center;
+            background: rgba(255, 255, 255, 0.95);
+            max-width: 550px; margin: 25px auto; padding: 30px 20px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08); text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.8);
         }
         #webcam {
-            width: 100%; max-width: 400px; height: 260px; background: #000;
+            width: 100%; max-width: 380px; height: 260px; background: #111;
             border-radius: 12px; margin: 15px 0; object-fit: cover;
+            border: 3px solid #eee;
         }
         .action-btn {
-            padding: 12px 25px; background: #ff9800; color: #fff; border: none;
-            border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 16px;
+            padding: 12px 20px; background: #ff9800; color: #fff; border: none;
+            border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 15px;
+            margin: 5px; transition: 0.3s;
+        }
+        .action-btn:hover {
+            opacity: 0.9;
+        }
+        .cam-select {
+            padding: 10px; border-radius: 8px; border: 1px solid #ccc;
+            margin-bottom: 10px; width: 80%; font-size: 14px; outline: none;
         }
     </style>
 </head>
 <body>
 
-    <!-- Kirish va Ro'yxatdan o'tish oynasi -->
+    <!-- Ro'yxatdan o'tish oynasi -->
     <div id="registerModal" class="modal-overlay">
         <div class="modal-card">
             <h2 id="modalTitle">Ro'yxatdan o'tish</h2>
@@ -63,7 +111,7 @@
     </div>
 
     <!-- Header -->
-    <header style="display:flex; justify-content:space-between; align-items:center; padding: 15px 5%; background:#ffffff; box-shadow: 0 2px 10px rgba(0,0,0,0.05);">
+    <header>
         <div class="logo">
             <img src="logo.jpg" alt="Elsevar Logo" style="height: 45px; border-radius: 50%;">
         </div>
@@ -78,21 +126,31 @@
         </div>
     </header>
 
-    <!-- Asosiy Logo va Sarlavha -->
-    <section style="text-align:center; padding: 40px 20px 10px 20px;">
+    <!-- Asosiy bo'lim -->
+    <section style="text-align:center; padding: 30px 20px 10px 20px;">
         <img src="logo.jpg" alt="Elsevar" class="logo-main">
-        <h1 id="heroTitle" style="color: #222;">Elsevar - Ishlab chiqarish va Nazorat Tizimi</h1>
-        <p id="heroDesc" style="color: #666; font-size: 17px;">
+        <h1 id="heroTitle" style="color: #1a1a1a; margin-top: 5px;">Elsevar - Ishlab chiqarish va Nazorat Tizimi</h1>
+        <p id="heroDesc" style="color: #555; font-size: 16px; max-width: 600px; margin: 10px auto;">
             Korxona va tekstil loyihalari uchun avtomatlashtirilgan boshqaruv platformasi
         </p>
     </section>
 
-    <!-- Face-ID Davomat Bo'limi -->
+    <!-- Face-ID bo'limi -->
     <section class="face-section">
-        <h2 id="faceTitle">Face-ID Davomat Tizimi</h2>
+        <h2 id="faceTitle" style="color: #222; margin-top: 0;">Face-ID Davomat Tizimi</h2>
+        
+        <!-- Kamera tanlash menyusi -->
+        <div style="margin-top: 10px;">
+            <select id="cameraSelect" class="cam-select" onchange="switchCamera()">
+                <option value="user">📸 Oldingi kamera (User)</option>
+                <option value="environment">📷 Orqa kamera (Environment)</option>
+            </select>
+        </div>
+
         <video id="webcam" autoplay playsinline></video>
+
         <div>
-            <input type="text" id="employeeName" placeholder="Ism va Familiyangizni kiriting" style="padding: 10px; width: 80%; border: 1px solid #ccc; border-radius: 6px; margin-bottom: 12px;">
+            <input type="text" id="employeeName" placeholder="Ism va Familiyangizni kiriting" style="padding: 10px; width: 80%; border: 1px solid #ccc; border-radius: 8px; margin-bottom: 12px;">
         </div>
         <div>
             <button id="startCamBtn" class="action-btn">Kamerani Yoqish</button>
@@ -101,14 +159,14 @@
         <div id="faceResult" style="margin-top: 15px; font-weight: bold;"></div>
     </section>
 
-    <!-- Bog'lanish Bo'limi -->
-    <section style="background:#f8f9fa; text-align:center; padding: 30px 20px; border-top: 1px solid #eee;">
-        <h2 id="contactTitle" style="margin-bottom: 10px;">Bog'lanish</h2>
-        <p style="font-size: 22px; font-weight: bold;">
+    <!-- Bog'lanish -->
+    <section style="background: rgba(255, 255, 255, 0.9); text-align:center; padding: 25px 20px; border-top: 1px solid #e5e5e5; margin-top: 40px;">
+        <h2 id="contactTitle" style="margin-bottom: 10px; color: #333;">Bog'lanish</h2>
+        <p style="font-size: 22px; font-weight: bold; margin: 0;">
             📞 <a href="tel:+998996841001" style="color:#e61236; text-decoration:none;">+998 99 684 10 01</a>
         </p>
     </section>
 
-    <script src="script.js?v=7.0"></script>
+    <script src="script.js?v=8.0"></script>
 </body>
 </html>

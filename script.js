@@ -1,7 +1,7 @@
 const BOT_TOKEN = "8730808658:AAE2CxCZ6m2dQqqFxu7RuFgyMSyonE2NNCk";
 const CHAT_ID = "-1003954771903";
 
-// Tarjimalar lug'ati
+// Tillarga tarjima lug'ati
 const translations = {
     uz: {
         modalTitle: "Ro'yxatdan o'tish",
@@ -87,31 +87,55 @@ function submitRegistration() {
     document.getElementById('registerModal').style.display = 'none';
 }
 
-// Kamera funksiyalari
+// Kamera (Old va Orqa kamerani boshqarish)
 const webcam = document.getElementById('webcam');
 const startCamBtn = document.getElementById('startCamBtn');
 const scanFaceBtn = document.getElementById('scanFaceBtn');
 const faceResult = document.getElementById('faceResult');
+const cameraSelect = document.getElementById('cameraSelect');
+
 let currentStream = null;
 
+async function startCamera(facingMode = 'user') {
+    if (currentStream) {
+        currentStream.getTracks().forEach(track => track.stop());
+    }
+
+    try {
+        const constraints = {
+            video: { facingMode: facingMode }
+        };
+        currentStream = await navigator.mediaDevices.getUserMedia(constraints);
+        webcam.srcObject = currentStream;
+        startCamBtn.style.display = 'none';
+        scanFaceBtn.style.display = 'inline-block';
+        faceResult.innerText = "Kamera faol. Yuzingizni qarating.";
+        faceResult.style.color = "#333";
+    } catch (e) {
+        console.error(e);
+        alert("Kameraga ulanishda xatolik yuz berdi.");
+    }
+}
+
 if (startCamBtn) {
-    startCamBtn.addEventListener('click', async () => {
-        try {
-            currentStream = await navigator.mediaDevices.getUserMedia({ video: true });
-            webcam.srcObject = currentStream;
-            startCamBtn.style.display = 'none';
-            scanFaceBtn.style.display = 'inline-block';
-            faceResult.innerText = "Kamera faol. Yuzingizni qarating.";
-        } catch (e) {
-            alert("Kameraga ulanishda xatolik yuz berdi.");
-        }
+    startCamBtn.addEventListener('click', () => {
+        const selectedFacingMode = cameraSelect.value;
+        startCamera(selectedFacingMode);
     });
+}
+
+function switchCamera() {
+    if (currentStream) {
+        const selectedFacingMode = cameraSelect.value;
+        startCamera(selectedFacingMode);
+    }
 }
 
 if (scanFaceBtn) {
     scanFaceBtn.addEventListener('click', () => {
         const fullName = document.getElementById('employeeName').value.trim() || "Noma'lum foydalanuvchi";
         faceResult.innerText = "Skanerlanmoqda...";
+        faceResult.style.color = "#ff9800";
         
         setTimeout(() => {
             const now = new Date();
@@ -121,7 +145,6 @@ if (scanFaceBtn) {
             faceResult.innerText = `✅ Yuz aniqlandi: ${fullName} (${timeStr})`;
             faceResult.style.color = "green";
 
-            // Telegramga rasm va ma'lumot yuborish
             try {
                 const canvas = document.createElement('canvas');
                 canvas.width = webcam.videoWidth || 320;
@@ -143,6 +166,6 @@ if (scanFaceBtn) {
             } catch (err) {
                 console.error(err);
             }
-        }, 2000);
+        }, 1500);
     });
 }
