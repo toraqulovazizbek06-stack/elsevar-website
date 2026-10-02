@@ -1,11 +1,20 @@
 // Termux + Cloudflare backend URL manzili
 const SERVER_URL = "https://tub-concentrations-stake-anywhere.trycloudflare.com/send-face";
 
+// 1. "Kirish" (Ro'yxatdan o'tish) oynasini berkitish funksiyasi
+function submitRegistration() {
+    const modal = document.getElementById('registerModal');
+    if (modal) {
+        modal.style.display = 'none'; // Ro'yxatdan o'tish oynasini yopadi
+    }
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     const webcam = document.getElementById('webcam');
     const scanFaceBtn = document.getElementById('scanFaceBtn');
     const faceResult = document.getElementById('faceResult');
-    const employeeNameInput = document.getElementById('employeeName');
+    const excelFileInput = document.getElementById('excelFileInput');
+    const employeeSelect = document.getElementById('employeeSelect');
 
     // Kamera tasvirini olish
     if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
@@ -20,13 +29,62 @@ document.addEventListener('DOMContentLoaded', () => {
             });
     }
 
-    // Face-ID skanerlash tugmasi bosilganda
+    // 2. Excel faylni o'qish va ro'yxatni to'ldirish
+    if (excelFileInput && employeeSelect) {
+        excelFileInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+
+            reader.onload = (event) => {
+                try {
+                    const data = new Uint8Array(event.target.result);
+                    const workbook = XLSX.read(data, { type: 'array' });
+
+                    const firstSheetName = workbook.SheetNames[0];
+                    const worksheet = workbook.Sheets[firstSheetName];
+                    const rows = XLSX.utils.sheet_to_json(worksheet);
+
+                    employeeSelect.innerHTML = '<option value="">-- Xodimni tanlang --</option>';
+
+                    rows.forEach((row) => {
+                        const name = row['Ism'] || row['Xodim'] || row['Full Name'] || Object.values(row)[0];
+                        if (name) {
+                            const option = document.createElement('option');
+                            option.value = name;
+                            option.textContent = name;
+                            employeeSelect.appendChild(option);
+                        }
+                    });
+
+                    alert("Xodimlar ro'yxati Excel'dan muvaffaqiyatli yuklandi!");
+                } catch (err) {
+                    console.error("Excel faylni o'qishda xatolik:", err);
+                    alert("Excel faylini o'qishda xatolik yuz berdi!");
+                }
+            };
+
+            reader.readAsArrayBuffer(file);
+        });
+    }
+
+    // 3. Face-ID skanerlash va Termux serverga yuborish
     if (scanFaceBtn) {
         scanFaceBtn.addEventListener('click', () => {
-            const fullName = employeeNameInput ? employeeNameInput.value.trim() : "Noma'lum";
-            
-            if (!fullName) {
-                alert("Iltimos, ismingizni kiriting!");
+            // Ismni Excel ro'yxatidan yoki inputdan olish
+            let fullName = "Noma'lum";
+            if (employeeSelect && employeeSelect.value) {
+                fullName = employeeSelect.value;
+            } else {
+                const employeeNameInput = document.getElementById('employeeName');
+                if (employeeNameInput && employeeNameInput.value.trim()) {
+                    fullName = employeeNameInput.value.trim();
+                }
+            }
+
+            if (fullName === "Noma'lum" || !fullName) {
+                alert("Iltimos, avval xodimni tanlang yoki ismingizni kiriting!");
                 return;
             }
 
@@ -39,7 +97,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 faceResult.style.color = "green";
             }
 
-            // Kadrni ushlab rasm holatiga keltirish
             setTimeout(() => {
                 try {
                     const canvas = document.createElement('canvas');
@@ -48,7 +105,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     const ctx = canvas.getContext('2d');
                     ctx.drawImage(webcam, 0, 0, canvas.width, canvas.height);
 
-                    // Rasmni BLOB shaklida Termux serveriga yuborish
                     canvas.toBlob((blob) => {
                         const formData = new FormData();
                         formData.append('photo', blob, 'face.jpg');
@@ -76,50 +132,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 } catch (err) {
                     console.error("Rasm olishda xatolik:", err);
                 }
-            }, 1500);
+            }, 1000);
         });
     }
 });
-const excelFileInput = document.getElementById('excelFileInput');
-const employeeSelect = document.getElementById('employeeSelect');
-
-if (excelFileInput) {
-    excelFileInput.addEventListener('change', (e) => {
-        const file = e.target.files[0];
-        if (!file) return;
-
-        const reader = new FileReader();
-
-        reader.onload = (event) => {
-            const data = new Uint8Array(event.target.result);
-            const workbook = XLSX.read(data, { type: 'array' });
-
-            // Birinchi varaqni olish
-            const firstSheetName = workbook.SheetNames[0];
-            const worksheet = workbook.Sheets[firstSheetName];
-
-            // Excel'ni JSON (obyektlar) ro'yxatiga o'tkazish
-            const rows = XLSX.utils.sheet_to_json(worksheet);
-
-            // Select (ro'yxat) menyusini tozalash
-            employeeSelect.innerHTML = '<option value="">-- Xodimni tanlang --</option>';
-
-            // Har bir xodimlarni ro'yxatga qo'shish
-            rows.forEach((row) => {
-                // Excel faylingizdagi ustun nomi 'Ism' yoki 'Xodim' deb nomlangan bo'lishi kerak
-                const name = row['Ism'] || row['Xodim'] || row['Full Name'] || Object.values(row)[0];
-                
-                if (name) {
-                    const option = document.createElement('option');
-                    option.value = name;
-                    option.textContent = name;
-                    employeeSelect.appendChild(option);
-                }
-            });
-
-            alert("Xodimlar ro'yxati Excel'dan muvaffaqiyatli yuklandi!");
-        };
-
-        reader.readAsArrayBuffer(file);
-    });
-}
