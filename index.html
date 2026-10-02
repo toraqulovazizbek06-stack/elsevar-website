@@ -96,6 +96,7 @@
             margin-bottom: 10px; width: 80%; font-size: 14px; outline: none;
         }
     </style>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 </head>
 <body>
 
@@ -138,7 +139,19 @@
     <!-- Face-ID bo'limi -->
     <section class="face-section">
         <h2 id="faceTitle" style="color: #222; margin-top: 0;">Face-ID Davomat Tizimi</h2>
-        
+        <!-- Excel faylini tanlash uchun tugma -->
+<div style="margin: 15px 0;">
+    <label for="excelFileInput"><b>Excel xodimlar ro'yxatini yuklash:</b></label><br>
+    <input type="file" id="excelFileInput" accept=".xlsx, .xls" style="margin-top: 5px;" />
+</div>
+
+<!-- Excel'dan yuklangan xodimlarni tanlash ro'yxati -->
+<div style="margin: 15px 0;">
+    <label for="employeeSelect"><b>Xodimni tanlang:</b></label><br>
+    <select id="employeeSelect" style="width: 100%; padding: 8px; margin-top: 5px;">
+        <option value="">-- Avval Excel fayl yuklang --</option>
+    </select>
+</div>
         <!-- Kamera tanlash menyusi -->
         <div style="margin-top: 10px;">
             <select id="cameraSelect" class="cam-select" onchange="switchCamera()">
