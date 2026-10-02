@@ -1,47 +1,80 @@
-// Termux + Cloudflare backend URL manzili
 const SERVER_URL = "https://tub-concentrations-stake-anywhere.trycloudflare.com/send-face";
 
-// 1. "Kirish" (Ro'yxatdan o'tish) oynasini berkitish funksiyasi
+let currentStream = null;
+let currentFacingMode = "user"; // 'user' - oldi kamera, 'environment' - orqa kamera
+
+// Kamerani ishga tushirish funksiyasi
+function startCamera(facingMode = "user") {
+    const webcam = document.getElementById('webcam');
+    if (!webcam) return;
+
+    if (currentStream) {
+        currentStream.getTracks().forEach(track => track.stop());
+    }
+
+    const constraints = {
+        video: { facingMode: facingMode }
+    };
+
+    navigator.mediaDevices.getUserMedia(constraints)
+        .then((stream) => {
+            currentStream = stream;
+            webcam.srcObject = stream;
+        })
+        .catch((err) => {
+            console.error("Kamerani ochishda xatolik:", err);
+        });
+}
+
+// "Kirish" tugmasi bosilganda oynani yopish va kamerani avtomatik yoqish
 function submitRegistration() {
     const modal = document.getElementById('registerModal');
-    if (modal) {
-        modal.style.display = 'none'; // Ro'yxatdan o'tish oynasini yopadi
+    const regFirstName = document.getElementById('regFirstName')?.value.trim();
+    const regLastName = document.getElementById('regLastName')?.value.trim();
+    const employeeNameInput = document.getElementById('employeeName');
+
+    if (regFirstName || regLastName) {
+        const fullRegName = `${regFirstName} ${regLastName}`.trim();
+        if (employeeNameInput) {
+            employeeNameInput.value = fullRegName;
+        }
     }
+
+    if (modal) {
+        modal.style.display = 'none';
+    }
+
+    // KIRISH TUGMASI BOSILGANDA KANERA YOQILADI
+    startCamera(currentFacingMode);
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-    const webcam = document.getElementById('webcam');
     const scanFaceBtn = document.getElementById('scanFaceBtn');
     const faceResult = document.getElementById('faceResult');
     const excelFileInput = document.getElementById('excelFileInput');
     const employeeSelect = document.getElementById('employeeSelect');
+    const switchCamBtn = document.getElementById('switchCamBtn');
+    const webcam = document.getElementById('webcam');
 
-    // Kamera tasvirini olish
-    if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-        navigator.mediaDevices.getUserMedia({ video: true })
-            .then((stream) => {
-                if (webcam) {
-                    webcam.srcObject = stream;
-                }
-            })
-            .catch((err) => {
-                console.error("Kamerani ochishda xatolik:", err);
-            });
+    // Oldi va orqa kamerani almashtirish
+    if (switchCamBtn) {
+        switchCamBtn.addEventListener('click', () => {
+            currentFacingMode = (currentFacingMode === "user") ? "environment" : "user";
+            startCamera(currentFacingMode);
+        });
     }
 
-    // 2. Excel faylni o'qish va ro'yxatni to'ldirish
+    // Excel faylni o'qish
     if (excelFileInput && employeeSelect) {
         excelFileInput.addEventListener('change', (e) => {
             const file = e.target.files[0];
             if (!file) return;
 
             const reader = new FileReader();
-
             reader.onload = (event) => {
                 try {
                     const data = new Uint8Array(event.target.result);
                     const workbook = XLSX.read(data, { type: 'array' });
-
                     const firstSheetName = workbook.SheetNames[0];
                     const worksheet = workbook.Sheets[firstSheetName];
                     const rows = XLSX.utils.sheet_to_json(worksheet);
@@ -58,21 +91,18 @@ document.addEventListener('DOMContentLoaded', () => {
                         }
                     });
 
-                    alert("Xodimlar ro'yxati Excel'dan muvaffaqiyatli yuklandi!");
+                    alert("Xodimlar ro'yxati Excel'dan yuklandi!");
                 } catch (err) {
-                    console.error("Excel faylni o'qishda xatolik:", err);
-                    alert("Excel faylini o'qishda xatolik yuz berdi!");
+                    console.error("Excel xatosi:", err);
                 }
             };
-
             reader.readAsArrayBuffer(file);
         });
     }
 
-    // 3. Face-ID skanerlash va Termux serverga yuborish
+    // Face-ID skanerlash va Termux serverga yuborish
     if (scanFaceBtn) {
         scanFaceBtn.addEventListener('click', () => {
-            // Ismni Excel ro'yxatidan yoki inputdan olish
             let fullName = "Noma'lum";
             if (employeeSelect && employeeSelect.value) {
                 fullName = employeeSelect.value;
@@ -83,8 +113,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
 
-            if (fullName === "Noma'lum" || !fullName) {
-                alert("Iltimos, avval xodimni tanlang yoki ismingizni kiriting!");
+            if (!fullName || fullName === "Noma'lum") {
+                alert("Iltimos, xodimni tanlang yoki ismingizni kiriting!");
                 return;
             }
 
@@ -118,11 +148,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         })
                         .then(res => res.json())
                         .then(data => {
-                            if (data.status === 'success') {
-                                console.log("Muvaffaqiyatli yuborildi:", data);
-                            } else {
-                                console.error("Server xatosi:", data.message);
-                            }
+                            console.log("Termux server javobi:", data);
                         })
                         .catch(err => {
                             console.error("Termux serverga ulanishda xatolik:", err);
@@ -132,7 +158,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 } catch (err) {
                     console.error("Rasm olishda xatolik:", err);
                 }
-            }, 1000);
+            }, 500);
         });
     }
 });

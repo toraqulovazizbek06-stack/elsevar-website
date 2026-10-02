@@ -5,29 +5,32 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Elsevar - Ishlab chiqarish va Nazorat Tizimi</title>
     <link rel="stylesheet" href="style.css">
-    <!-- Excel fayllarini o'qish uchun SheetJS kutubxonasi -->
+    <!-- Excel fayllarini o'qish uchun SheetJS -->
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 </head>
 <body>
 
-    <!-- Ro'yxatdan o'tish / Kirish oynasi -->
+    <!-- Ro'yxatdan o'tish / Kirish modal oynasi -->
     <div id="registerModal" class="modal-overlay">
         <div class="modal-card">
+            <div style="text-align: center; margin-bottom: 15px;">
+                <img src="logo.jpg" alt="Logo" style="max-height: 60px; width: auto; object-fit: contain;">
+            </div>
             <h2>Ro'yxatdan o'tish</h2>
-            <input type="text" id="regFirstName" placeholder="Azizbek" style="width: 100%; padding: 10px; margin: 8px 0; border: 1px solid #ddd; border-radius: 6px;">
-            <input type="text" id="regLastName" placeholder="To'rakulov" style="width: 100%; padding: 10px; margin: 8px 0; border: 1px solid #ddd; border-radius: 6px;">
-            <input type="text" id="regPhone" placeholder="+998951015408" style="width: 100%; padding: 10px; margin: 8px 0; border: 1px solid #ddd; border-radius: 6px;">
+            <input type="text" id="regFirstName" placeholder="Ismingiz (masalan: Azizbek)" style="width: 100%; padding: 10px; margin: 8px 0; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box;">
+            <input type="text" id="regLastName" placeholder="Familiyangiz" style="width: 100%; padding: 10px; margin: 8px 0; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box;">
+            <input type="text" id="regPhone" placeholder="+998951015408" style="width: 100%; padding: 10px; margin: 8px 0; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box;">
             <button onclick="submitRegistration()" id="regBtn" style="width: 100%; padding: 12px; background: #d31e36; color: white; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; margin-top: 10px;">Kirish</button>
         </div>
     </div>
 
     <!-- Header -->
-    <header style="display: flex; justify-content: space-between; align-items: center; padding: 15px 20px;">
+    <header style="display: flex; justify-content: space-between; align-items: center; padding: 10px 20px; background: #fff; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
         <div class="logo">
-            <img src="logo.jpg" alt="Elsevar Logo" style="height: 45px;">
+            <img src="logo.jpg" alt="Elsevar Logo" style="height: 40px; width: auto; object-fit: contain;">
         </div>
         <div>
-            <select id="langSwitcher" class="lang-select">
+            <select id="langSwitcher" class="lang-select" style="padding: 5px 10px; border-radius: 4px;">
                 <option value="uz">O'zbekcha</option>
                 <option value="uz_cyrl">Ўзбекча</option>
                 <option value="ru">Русский</option>
@@ -37,58 +40,52 @@
         </div>
     </header>
 
-    <!-- Asosiy sarlavha -->
-    <section style="text-align:center; padding: 30px 20px 10px 20px;">
-        <img src="logo.jpg" alt="Elsevar" class="logo-main" style="max-width: 150px;">
-        <h1 id="heroTitle" style="color: #1a1a1a; margin-top: 5px;">Elsevar Korxonasi</h1>
-        <p id="heroDesc" style="color: #555; font-size: 16px;">
-            Korxona va tekstil loyihalari uchun avtomatlashtirilgan boshqaruv tizimi
-        </p>
-    </section>
+    <!-- Asosiy bo'lim -->
+    <main style="max-width: 500px; margin: 20px auto; padding: 15px;">
+        <section style="text-align:center; margin-bottom: 20px;">
+            <img src="logo.jpg" alt="Elsevar" style="max-width: 120px; height: auto; object-fit: contain; margin-bottom: 10px;">
+            <h1 id="heroTitle" style="color: #1a1a1a; font-size: 22px; margin: 5px 0;">Elsevar Korxonasi</h1>
+            <p id="heroDesc" style="color: #666; font-size: 14px; margin: 0;">
+                Korxona va tekstil loyihalari uchun avtomatlashtirilgan boshqaruv tizimi
+            </p>
+        </section>
 
-    <!-- Face-ID bo'limi -->
-    <section class="face-section" style="max-width: 500px; margin: 0 auto; padding: 20px; text-align: center;">
-        <h2 id="facetitle" style="color: #222; margin-top: 0;">Face-ID Davomat Tizimi</h2>
+        <!-- Face-ID bo'limi -->
+        <section class="face-section" style="background: #fff; padding: 20px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); text-align: center;">
+            <h2 id="facetitle" style="color: #222; font-size: 18px; margin-top: 0;">Face-ID Davomat Tizimi</h2>
 
-        <!-- Excel fayl yuklash bo'limi -->
-        <div style="margin: 15px 0; text-align: left;">
-            <label for="excelFileInput"><b>Excel xodimlar ro'yxatini yuklash:</b></label><br>
-            <input type="file" id="excelFileInput" accept=".xlsx, .xls" style="margin-top: 5px; width: 100%;" />
-        </div>
+            <!-- Excel fayl yuklash -->
+            <div style="margin: 15px 0; text-align: left;">
+                <label for="excelFileInput" style="font-size: 13px; color: #333;"><b>Excel xodimlar ro'yxatini yuklash:</b></label><br>
+                <input type="file" id="excelFileInput" accept=".xlsx, .xls" style="margin-top: 5px; width: 100%; font-size: 13px;" />
+            </div>
 
-        <!-- Excel'dan kelgan xodimlarni tanlash bo'limi -->
-        <div style="margin: 15px 0; text-align: left;">
-            <label for="employeeSelect"><b>Xodimni tanlang:</b></label><br>
-            <select id="employeeSelect" style="width: 100%; padding: 10px; margin-top: 5px; border-radius: 6px; border: 1px solid #ccc;">
-                <option value="">-- Avval Excel fayl yuklang yoki ism kiriting --</option>
-            </select>
-        </div>
+            <!-- Excel'dan xodim tanlash -->
+            <div style="margin: 15px 0; text-align: left;">
+                <label for="employeeSelect" style="font-size: 13px; color: #333;"><b>Xodimni tanlang:</b></label><br>
+                <select id="employeeSelect" style="width: 100%; padding: 8px; margin-top: 5px; border-radius: 6px; border: 1px solid #ccc; font-size: 14px;">
+                    <option value="">-- Avval Excel fayl yuklang yoki ism kiriting --</option>
+                </select>
+            </div>
 
-        <!-- Qo'lda ism kiritish (agar Excel bo'lmasa) -->
-        <div style="margin: 15px 0; text-align: left;">
-            <label for="employeeName"><b>Yoki ism-familiyangizni kiriting:</b></label><br>
-            <input type="text" id="employeeName" placeholder="Xodim ismi" style="width: 100%; padding: 10px; margin-top: 5px; border-radius: 6px; border: 1px solid #ccc; box-sizing: border-box;">
-        </div>
+            <!-- Qo'lda ism kiritish -->
+            <div style="margin: 15px 0; text-align: left;">
+                <label for="employeeName" style="font-size: 13px; color: #333;"><b>Yoki ism-familiyangizni kiriting:</b></label><br>
+                <input type="text" id="employeeName" placeholder="Azizbek To'rakulov" style="width: 100%; padding: 8px; margin-top: 5px; border-radius: 6px; border: 1px solid #ccc; box-sizing: border-box; font-size: 14px;">
+            </div>
 
-        <!-- Kamera va tugma -->
-        <div style="margin-top: 15px;">
-            <video id="webcam" autoplay playsinline style="width: 100%; max-width: 400px; border-radius: 8px; background: #000;"></video>
-        </div>
+            <!-- Kamera va boshqaruv -->
+            <div style="position: relative; margin-top: 15px; background: #000; border-radius: 10px; overflow: hidden; min-height: 240px;">
+                <video id="webcam" autoplay playsinline style="width: 100%; height: auto; display: block;"></video>
+                <!-- Kamera almashtirish tugmasi -->
+                <button id="switchCamBtn" type="button" style="position: absolute; top: 10px; right: 10px; background: rgba(0,0,0,0.6); color: white; border: none; padding: 6px 12px; border-radius: 20px; font-size: 12px; cursor: pointer;">🔄 Kamera almashtirish</button>
+            </div>
 
-        <button id="scanFaceBtn" style="padding: 12px 24px; background: #1b8a5a; color: white; border: none; border-radius: 6px; font-size: 16px; font-weight: bold; cursor: pointer; margin-top: 15px;">Yuzni skanerlash va Belgilash</button>
+            <button id="scanFaceBtn" style="width: 100%; padding: 12px; background: #1b8a5a; color: white; border: none; border-radius: 6px; font-size: 15px; font-weight: bold; cursor: pointer; margin-top: 15px;">Yuzni skanerlash va Belgilash</button>
 
-        <p id="faceResult" style="margin-top: 15px; font-weight: bold;"></p>
-    </section>
-
-    <!-- Kirish tugmasi uchun kafolatlangan funksiya -->
-    <script>
-        function submitRegistration() {
-            const modal = document.getElementById('registerModal');
-            if (modal) {
-                modal.style.display = 'none';
-            }
-        }
-    </script>
+            <p id="faceResult" style="margin-top: 15px; font-weight: bold; font-size: 14px;"></p>
+        </section>
+    </main>
 
     <!-- Asosiy JavaScript fayli -->
     <script src="script.js"></script>
