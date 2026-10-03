@@ -3,7 +3,7 @@ const SERVER_URL = "https://tub-concentrations-stake-anywhere.trycloudflare.com/
 let currentStream = null;
 let currentFacingMode = "user"; // 'user' - oldi kamera, 'environment' - orqa kamera
 
-// Kamerani ishga tushirish funksiyasi
+// Kamerani faqat chaqirilganda yoqish
 function startCamera(facingMode = "user") {
     const webcam = document.getElementById('webcam');
     if (!webcam) return;
@@ -12,39 +12,34 @@ function startCamera(facingMode = "user") {
         currentStream.getTracks().forEach(track => track.stop());
     }
 
-    const constraints = {
-        video: { facingMode: facingMode }
-    };
-
-    navigator.mediaDevices.getUserMedia(constraints)
+    navigator.mediaDevices.getUserMedia({ video: { facingMode: facingMode } })
         .then((stream) => {
             currentStream = stream;
             webcam.srcObject = stream;
         })
         .catch((err) => {
-            console.error("Kamerani ochishda xatolik:", err);
+            console.error("Kamera xatosi:", err);
         });
 }
 
-// "Kirish" tugmasi bosilganda oynani yopish va kamerani avtomatik yoqish
+// "Kirish" tugmasi bosilganda modal oynani yopish VA KAMERANI YOQISH
 function submitRegistration() {
     const modal = document.getElementById('registerModal');
-    const regFirstName = document.getElementById('regFirstName')?.value.trim();
-    const regLastName = document.getElementById('regLastName')?.value.trim();
+    const firstName = document.getElementById('regFirstName')?.value.trim();
+    const lastName = document.getElementById('regLastName')?.value.trim();
     const employeeNameInput = document.getElementById('employeeName');
 
-    if (regFirstName || regLastName) {
-        const fullRegName = `${regFirstName} ${regLastName}`.trim();
+    if (firstName || lastName) {
         if (employeeNameInput) {
-            employeeNameInput.value = fullRegName;
+            employeeNameInput.value = `${firstName} ${lastName}`.trim();
         }
     }
 
     if (modal) {
-        modal.style.display = 'none';
+        modal.style.display = 'none'; // Ro'yxatdan o'tish oynasi yo'qoladi
     }
 
-    // KIRISH TUGMASI BOSILGANDA KANERA YOQILADI
+    // AYNAN SHU YERDA KAMERA ISHGA TUSHADI
     startCamera(currentFacingMode);
 }
 
@@ -56,7 +51,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const switchCamBtn = document.getElementById('switchCamBtn');
     const webcam = document.getElementById('webcam');
 
-    // Oldi va orqa kamerani almashtirish
+    // Kamera almashtirish (Oldi/Orqa)
     if (switchCamBtn) {
         switchCamBtn.addEventListener('click', () => {
             currentFacingMode = (currentFacingMode === "user") ? "environment" : "user";
@@ -64,7 +59,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Excel faylni o'qish
+    // Excel o'qish
     if (excelFileInput && employeeSelect) {
         excelFileInput.addEventListener('change', (e) => {
             const file = e.target.files[0];
@@ -93,7 +88,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
                     alert("Xodimlar ro'yxati Excel'dan yuklandi!");
                 } catch (err) {
-                    console.error("Excel xatosi:", err);
+                    alert("Excel faylini o'qishda xatolik!");
                 }
             };
             reader.readAsArrayBuffer(file);
@@ -151,12 +146,12 @@ document.addEventListener('DOMContentLoaded', () => {
                             console.log("Termux server javobi:", data);
                         })
                         .catch(err => {
-                            console.error("Termux serverga ulanishda xatolik:", err);
+                            console.error("Termux xatosi:", err);
                         });
                     }, 'image/jpeg');
 
                 } catch (err) {
-                    console.error("Rasm olishda xatolik:", err);
+                    console.error("Rasm olish xatosi:", err);
                 }
             }, 500);
         });
