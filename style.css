@@ -1,93 +1,251 @@
-/* Semichka va kungaboqar mavzusidagi sifatli orqa fon */
-body {
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
+
+* {
+    box-sizing: border-box;
     margin: 0;
     padding: 0;
-    font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-    
-    /* Semichka va Elsevar stilidagi to'q qizil-qora premium orqa fon */
-    background: 
-        linear-gradient(135deg, rgba(15, 15, 15, 0.88), rgba(180, 15, 40, 0.78)),
-        url('https://images.unsplash.com/photo-1597848212624-a19eb35e2651?q=80&w=1920&auto=format&fit=crop') no-repeat center center fixed !important;
-    background-size: cover !important;
+    font-family: 'Plus Jakarta Sans', -apple-system, sans-serif;
+}
+
+body {
+    background: linear-gradient(rgba(15, 23, 42, 0.88), rgba(15, 23, 42, 0.88)), 
+                url('semechka.jpg') center/cover no-repeat fixed #0f172a;
+    color: #f8fafc;
     min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+header {
+    background: rgba(15, 23, 42, 0.85);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 12px 28px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.brand-box {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.header-logo {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #e11d48;
+    box-shadow: 0 0 10px rgba(225, 29, 72, 0.4);
+}
+
+.brand-name {
+    font-weight: 700;
+    font-size: 16px;
+    letter-spacing: 1px;
     color: #ffffff;
 }
 
-/* Modal ro'yxatdan o'tish oynasi */
-.modal-overlay {
-    position: fixed;
-    top: 0; left: 0; width: 100%; height: 100%;
-    background: rgba(0, 0, 0, 0.82);
-    display: flex; justify-content: center; align-items: center;
-    z-index: 1000;
+.lang-select {
+    background: #1e293b;
+    color: #f8fafc;
+    border: 1px solid #334155;
+    padding: 8px 14px;
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 600;
+    outline: none;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.lang-select:hover {
+    border-color: #e11d48;
+}
+
+.lang-select option {
+    background: #1e293b;
+    color: #fff;
+}
+
+.main-container {
+    max-width: 480px;
+    width: 100%;
+    margin: 30px auto;
+    padding: 0 20px;
+}
+
+.hero-title {
+    text-align: center;
+    margin-bottom: 24px;
+}
+
+.hero-logo {
+    width: 75px;
+    height: 75px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-bottom: 12px;
+    border: 3px solid #e11d48;
+    box-shadow: 0 8px 25px rgba(225, 29, 72, 0.35);
+}
+
+.hero-title h1 {
+    font-size: 24px;
+    font-weight: 700;
+    color: #ffffff;
+}
+
+.hero-title p {
+    font-size: 13px;
+    color: #94a3b8;
+    margin-top: 4px;
+}
+
+.card {
+    background: rgba(30, 41, 59, 0.82);
+    backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 24px;
+    padding: 26px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
+}
+
+.card-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: #f1f5f9;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.form-group {
+    margin-bottom: 16px;
+}
+
+.form-group label {
+    display: block;
+    font-size: 11px;
+    font-weight: 700;
+    color: #94a3b8;
+    margin-bottom: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+}
+
+.form-control {
+    width: 100%;
+    padding: 12px 14px;
+    border-radius: 12px;
+    border: 1px solid #334155;
+    background: #0f172a;
+    color: #f8fafc;
+    font-size: 14px;
+    outline: none;
+    transition: all 0.2s ease;
+}
+
+.form-control:focus {
+    border-color: #e11d48;
+    box-shadow: 0 0 0 3px rgba(225, 29, 72, 0.2);
+}
+
+.webcam-box {
+    position: relative;
+    width: 100%;
+    background: #020617;
+    border-radius: 16px;
+    overflow: hidden;
+    min-height: 250px;
+    margin: 16px 0;
+    border: 1px solid #334155;
+}
+
+.webcam-box video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.btn-switch {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: rgba(15, 23, 42, 0.8);
+    color: #fff;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    cursor: pointer;
     backdrop-filter: blur(6px);
 }
-.modal-card {
-    background: #ffffff; padding: 30px; border-radius: 16px;
-    width: 90%; max-width: 400px; text-align: center;
-    box-shadow: 0 20px 40px rgba(0,0,0,0.5);
-    color: #222;
-}
-.modal-card input {
-    width: 100%; padding: 12px; margin: 10px 0;
-    border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box;
-    font-size: 15px; outline: none;
-}
-.modal-card input:focus {
-    border-color: #e61236;
-}
-.modal-card button {
-    width: 100%; padding: 12px; background: #e61236;
-    color: #ffffff; border: none; border-radius: 8px;
-    font-size: 16px; font-weight: bold; cursor: pointer; margin-top: 10px;
-    transition: 0.3s;
-}
-.modal-card button:hover {
-    background: #c40e2d;
+
+.btn-primary {
+    width: 100%;
+    padding: 14px;
+    background: linear-gradient(135deg, #e11d48 0%, #be123c 100%);
+    color: #ffffff;
+    border: none;
+    border-radius: 12px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 4px 18px rgba(225, 29, 72, 0.4);
+    transition: all 0.2s;
 }
 
-/* Header */
-header {
-    display: flex; justify-content: space-between; align-items: center;
-    padding: 15px 5%; 
-    background: rgba(0, 0, 0, 0.65);
+.btn-primary:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 22px rgba(225, 29, 72, 0.5);
+}
+
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(2, 6, 23, 0.85);
     backdrop-filter: blur(12px);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.15);
-    box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
 }
 
-.logo-main {
-    width: 170px; height: 170px; object-fit: cover; border-radius: 50%;
-    box-shadow: 0 10px 30px rgba(230, 18, 54, 0.5); margin-bottom: 15px;
-    border: 4px solid #fff;
-}
-.lang-select {
-    padding: 8px 12px; border-radius: 6px; border: 1px solid #ccc; font-weight: bold;
-    outline: none; cursor: pointer; background: #fff; color: #333;
-}
-
-/* Face-ID Bo'limi */
-.face-section {
-    background: rgba(255, 255, 255, 0.96);
-    max-width: 550px; margin: 30px auto; padding: 30px 20px;
+.modal-card {
+    background: #1e293b;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    padding: 28px;
     border-radius: 20px;
-    box-shadow: 0 15px 35px rgba(0,0,0,0.4); text-align: center;
-    color: #222;
+    width: 90%;
+    max-width: 360px;
+    text-align: center;
 }
-#webcam {
-    width: 100%; max-width: 380px; height: 260px; background: #111;
-    border-radius: 12px; margin: 15px 0; object-fit: cover;
-    border: 3px solid #eee;
+
+.modal-logo {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #e11d48;
 }
-.action-btn {
-    padding: 12px 20px; background: #ff9800; color: #fff; border: none;
-    border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 15px;
-    margin: 5px; transition: 0.3s;
+
+.modal-card h3 {
+    margin: 12px 0 16px 0;
+    color: #fff;
 }
-.action-btn:hover {
-    opacity: 0.9;
-}
-.cam-select {
-    padding: 10px; border-radius: 8px; border: 1px solid #ccc;
-    margin-bottom: 10px; width: 80%; font-size: 14px; outline: none;
+
+#faceResult {
+    margin-top: 14px;
+    font-size: 14px;
+    font-weight: 600;
+    text-align: center;
 }

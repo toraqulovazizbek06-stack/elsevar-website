@@ -1,159 +1,113 @@
-const SERVER_URL = "https://tub-concentrations-stake-anywhere.trycloudflare.com/send-face";
+const SERVER_URL = "http://localhost:5000/send-face";
+
+const translations = {
+    uz: {
+        docTitle: "Elsevar - Ishlab chiqarish va Nazorat Tizimi",
+        heroHeading: "Elsevar Korxonasi",
+        heroSubheading: "Face-ID Davomat va Nazorat Tizimi",
+        cardTitle: "Face-ID Davomat",
+        lblExcel: "Excel xodimlari ro'yxatini yuklash",
+        lblSelectEmp: "Xodimni tanlang",
+        optDefaultEmp: "-- Avval Excel yuklang yoki qo'lda kiriting --",
+        lblManualName: "Yoki ism-familiyangizni kiriting",
+        scanInBtn: "🟢 Ishga kelish",
+        scanOutBtn: "🔴 Ishdan ketish",
+        switchCamBtn: "🔄 Kamera"
+    }
+};
 
 let currentStream = null;
-let currentFacingMode = "user"; // 'user' - oldi kamera, 'environment' - orqa kamera
+let currentFacingMode = "user";
 
-// Kamerani faqat chaqirilganda yoqish
 function startCamera(facingMode = "user") {
     const webcam = document.getElementById('webcam');
     if (!webcam) return;
-
     if (currentStream) {
         currentStream.getTracks().forEach(track => track.stop());
     }
-
     navigator.mediaDevices.getUserMedia({ video: { facingMode: facingMode } })
-        .then((stream) => {
-            currentStream = stream;
-            webcam.srcObject = stream;
-        })
-        .catch((err) => {
-            console.error("Kamera xatosi:", err);
-        });
+    .then((stream) => {
+        currentStream = stream;
+        webcam.srcObject = stream;
+    })
+    .catch((err) => console.error("Kamera xatosi:", err));
 }
 
-// "Kirish" tugmasi bosilganda modal oynani yopish VA KAMERANI YOQISH
-function submitRegistration() {
-    const modal = document.getElementById('registerModal');
-    const firstName = document.getElementById('regFirstName')?.value.trim();
-    const lastName = document.getElementById('regLastName')?.value.trim();
-    const employeeNameInput = document.getElementById('employeeName');
-
-    if (firstName || lastName) {
-        if (employeeNameInput) {
-            employeeNameInput.value = `${firstName} ${lastName}`.trim();
-        }
-    }
-
-    if (modal) {
-        modal.style.display = 'none'; // Ro'yxatdan o'tish oynasi yo'qoladi
-    }
-
-    // AYNAN SHU YERDA KAMERA ISHGA TUSHADI
+document.getElementById('switchCamBtn')?.addEventListener('click', () => {
+    currentFacingMode = currentFacingMode === "user" ? "environment" : "user";
     startCamera(currentFacingMode);
-}
+});
 
-document.addEventListener('DOMContentLoaded', () => {
-    const scanFaceBtn = document.getElementById('scanFaceBtn');
-    const faceResult = document.getElementById('faceResult');
-    const excelFileInput = document.getElementById('excelFileInput');
-    const employeeSelect = document.getElementById('employeeSelect');
-    const switchCamBtn = document.getElementById('switchCamBtn');
+// Umumiy jo'natish funksiyasi (action: 'in' yoki 'out')
+async function handleScan(actionType) {
     const webcam = document.getElementById('webcam');
+    const empSelect = document.getElementById('employeeSelect');
+    const empInput = document.getElementById('employeeName');
+    const resultText = document.getElementById('faceResult');
 
-    // Kamera almashtirish (Oldi/Orqa)
-    if (switchCamBtn) {
-        switchCamBtn.addEventListener('click', () => {
-            currentFacingMode = (currentFacingMode === "user") ? "environment" : "user";
-            startCamera(currentFacingMode);
-        });
+    let fullName = empSelect.value || empInput.value;
+    if (!fullName) {
+        alert("Iltimos, ism-familiyangizni kiriting yoki tanlang!");
+        return;
     }
 
-    // Excel o'qish
-    if (excelFileInput && employeeSelect) {
-        excelFileInput.addEventListener('change', (e) => {
-            const file = e.target.files[0];
-            if (!file) return;
+    resultText.style.color = "#38bdf8";
+    resultText.innerText = "📍 Joylashuv va yuz skanerlanmoqda...";
 
-            const reader = new FileReader();
-            reader.onload = (event) => {
-                try {
-                    const data = new Uint8Array(event.target.result);
-                    const workbook = XLSX.read(data, { type: 'array' });
-                    const firstSheetName = workbook.SheetNames[0];
-                    const worksheet = workbook.Sheets[firstSheetName];
-                    const rows = XLSX.utils.sheet_to_json(worksheet);
-
-                    employeeSelect.innerHTML = '<option value="">-- Xodimni tanlang --</option>';
-
-                    rows.forEach((row) => {
-                        const name = row['Ism'] || row['Xodim'] || row['Full Name'] || Object.values(row)[0];
-                        if (name) {
-                            const option = document.createElement('option');
-                            option.value = name;
-                            option.textContent = name;
-                            employeeSelect.appendChild(option);
-                        }
-                    });
-
-                    alert("Xodimlar ro'yxati Excel'dan yuklandi!");
-                } catch (err) {
-                    alert("Excel faylini o'qishda xatolik!");
-                }
-            };
-            reader.readAsArrayBuffer(file);
-        });
-    }
-
-    // Face-ID skanerlash va Termux serverga yuborish
-    if (scanFaceBtn) {
-        scanFaceBtn.addEventListener('click', () => {
-            let fullName = "Noma'lum";
-            if (employeeSelect && employeeSelect.value) {
-                fullName = employeeSelect.value;
-            } else {
-                const employeeNameInput = document.getElementById('employeeName');
-                if (employeeNameInput && employeeNameInput.value.trim()) {
-                    fullName = employeeNameInput.value.trim();
-                }
-            }
-
-            if (!fullName || fullName === "Noma'lum") {
-                alert("Iltimos, xodimni tanlang yoki ismingizni kiriting!");
+    const getLocation = () => {
+        return new Promise((resolve) => {
+            if (!navigator.geolocation) {
+                resolve({ lat: 39.6548, lon: 66.9597 });
                 return;
             }
-
-            const now = new Date();
-            const todayDate = now.toLocaleDateString('uz-UZ');
-            const timeString = now.toLocaleTimeString('uz-UZ');
-
-            if (faceResult) {
-                faceResult.innerText = `✔ Yuz aniqlandi: ${fullName} (${todayDate} ${timeString})`;
-                faceResult.style.color = "green";
-            }
-
-            setTimeout(() => {
-                try {
-                    const canvas = document.createElement('canvas');
-                    canvas.width = webcam.videoWidth || 320;
-                    canvas.height = webcam.videoHeight || 240;
-                    const ctx = canvas.getContext('2d');
-                    ctx.drawImage(webcam, 0, 0, canvas.width, canvas.height);
-
-                    canvas.toBlob((blob) => {
-                        const formData = new FormData();
-                        formData.append('photo', blob, 'face.jpg');
-                        formData.append('full_name', fullName);
-                        formData.append('date_str', todayDate);
-                        formData.append('time_str', timeString);
-
-                        fetch(SERVER_URL, {
-                            method: 'POST',
-                            body: formData
-                        })
-                        .then(res => res.json())
-                        .then(data => {
-                            console.log("Termux server javobi:", data);
-                        })
-                        .catch(err => {
-                            console.error("Termux xatosi:", err);
-                        });
-                    }, 'image/jpeg');
-
-                } catch (err) {
-                    console.error("Rasm olish xatosi:", err);
-                }
-            }, 500);
+            navigator.geolocation.getCurrentPosition(
+                (pos) => resolve({ lat: pos.coords.latitude, lon: pos.coords.longitude }),
+                () => resolve({ lat: 39.6548, lon: 66.9597 }),
+                { timeout: 5000, enableHighAccuracy: true }
+            );
         });
-    }
+    };
+
+    const loc = await getLocation();
+
+    const canvas = document.createElement('canvas');
+    canvas.width = webcam.videoWidth || 640;
+    canvas.height = webcam.videoHeight || 480;
+    const ctx = canvas.getContext('2d');
+    ctx.drawImage(webcam, 0, 0, canvas.width, canvas.height);
+
+    canvas.toBlob(async (blob) => {
+        const formData = new FormData();
+        formData.append('photo', blob, 'face.jpg');
+        formData.append('full_name', fullName);
+        formData.append('latitude', loc.lat);
+        formData.append('longitude', loc.lon);
+        formData.append('action_type', actionType); // 'in' yoki 'out'
+
+        try {
+            const response = await fetch(SERVER_URL, {
+                method: 'POST',
+                body: formData
+            });
+            const data = await response.json();
+
+            if (response.ok && data.status === 'success') {
+                resultText.style.color = "#4ade80";
+                resultText.innerText = `✅ ${data.action} muvaffaqiyatli saqlandi!`;
+            } else {
+                resultText.style.color = "#f87171";
+                resultText.innerText = "❌ " + (data.message || "Rad etildi!");
+            }
+        } catch (err) {
+            resultText.style.color = "#f87171";
+            resultText.innerText = "❌ Server bilan aloqa yo'q!";
+        }
+    }, 'image/jpeg');
+}
+
+document.getElementById('scanInBtn')?.addEventListener('click', () => handleScan('in'));
+document.getElementById('scanOutBtn')?.addEventListener('click', () => handleScan('out'));
+
+window.addEventListener('DOMContentLoaded', () => {
+    startCamera(currentFacingMode);
 });
